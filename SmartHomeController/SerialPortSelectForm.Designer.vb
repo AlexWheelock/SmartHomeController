@@ -33,7 +33,7 @@ Partial Class SerialPortSelectForm
         Me.ConnectButton.Margin = New System.Windows.Forms.Padding(2)
         Me.ConnectButton.Name = "ConnectButton"
         Me.ConnectButton.Size = New System.Drawing.Size(135, 24)
-        Me.ConnectButton.TabIndex = 5
+        Me.ConnectButton.TabIndex = 2
         Me.ConnectButton.Text = "Connect"
         Me.ConnectButton.UseVisualStyleBackColor = True
         '
@@ -43,7 +43,7 @@ Partial Class SerialPortSelectForm
         Me.RefreshButton.Margin = New System.Windows.Forms.Padding(2)
         Me.RefreshButton.Name = "RefreshButton"
         Me.RefreshButton.Size = New System.Drawing.Size(135, 24)
-        Me.RefreshButton.TabIndex = 4
+        Me.RefreshButton.TabIndex = 1
         Me.RefreshButton.Text = "Refresh"
         Me.RefreshButton.UseVisualStyleBackColor = True
         '
@@ -54,7 +54,7 @@ Partial Class SerialPortSelectForm
         Me.SerialComPortsComboBox.Margin = New System.Windows.Forms.Padding(2)
         Me.SerialComPortsComboBox.Name = "SerialComPortsComboBox"
         Me.SerialComPortsComboBox.Size = New System.Drawing.Size(135, 23)
-        Me.SerialComPortsComboBox.TabIndex = 3
+        Me.SerialComPortsComboBox.TabIndex = 0
         '
         'SerialPortSelectForm
         '
@@ -67,6 +67,7 @@ Partial Class SerialPortSelectForm
         Me.Font = New System.Drawing.Font("Roboto Slab", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Name = "SerialPortSelectForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "COM Port Select"
         Me.ResumeLayout(False)
 

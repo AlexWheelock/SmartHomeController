@@ -39,6 +39,7 @@ Partial Class SmartHomeControllerForm
         Me.ConnectToQyBoardToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UpdateCurrentTimeTimer = New System.Windows.Forms.Timer(Me.components)
         Me.CurrentDateLabel = New System.Windows.Forms.Label()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TopMenuStrip.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -136,18 +137,22 @@ Partial Class SmartHomeControllerForm
         Me.CurrentTimeLabel.TabIndex = 9
         Me.CurrentTimeLabel.Text = "Time"
         '
+        'SerialPort
+        '
+        '
         'TopMenuStrip
         '
+        Me.TopMenuStrip.Font = New System.Drawing.Font("Roboto Slab", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TopMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SetupToolStripMenuItem})
         Me.TopMenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.TopMenuStrip.Name = "TopMenuStrip"
-        Me.TopMenuStrip.Size = New System.Drawing.Size(339, 24)
+        Me.TopMenuStrip.Size = New System.Drawing.Size(339, 25)
         Me.TopMenuStrip.TabIndex = 10
         Me.TopMenuStrip.Text = "MenuStrip1"
         '
         'SetupToolStripMenuItem
         '
-        Me.SetupToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToQyBoardToolStripMenuItem})
+        Me.SetupToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToQyBoardToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.SetupToolStripMenuItem.Name = "SetupToolStripMenuItem"
         Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(49, 20)
         Me.SetupToolStripMenuItem.Text = "&Setup"
@@ -172,6 +177,12 @@ Partial Class SmartHomeControllerForm
         Me.CurrentDateLabel.Size = New System.Drawing.Size(44, 22)
         Me.CurrentDateLabel.TabIndex = 11
         Me.CurrentDateLabel.Text = "Date"
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ExitToolStripMenuItem.Text = "E&xit"
         '
         'SmartHomeControllerForm
         '
@@ -219,4 +230,5 @@ Partial Class SmartHomeControllerForm
     Friend WithEvents ConnectToQyBoardToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents UpdateCurrentTimeTimer As Timer
     Friend WithEvents CurrentDateLabel As Label
+    Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
 End Class

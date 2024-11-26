@@ -55,6 +55,16 @@ Public Class SerialPortSelectForm
     End Sub
 
     Private Sub ConnectButton_Click(sender As Object, e As EventArgs) Handles ConnectButton.Click
-
+        Try
+            SerialConnect(SerialComPortsComboBox.Text)
+            SmartHomeControllerForm.ReadyToReceiveData(1)
+            Me.Close()
+        Catch ex As Exception
+            If SerialComPortsComboBox.Text = "" Then
+                MsgBox("Please select a COM port and try again.")
+            Else
+                MsgBox("Attempting to connect to the selected COM port caused an error.")
+            End If
+        End Try
     End Sub
 End Class
