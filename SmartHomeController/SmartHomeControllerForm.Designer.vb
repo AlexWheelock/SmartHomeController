@@ -193,7 +193,7 @@ Partial Class SmartHomeControllerForm
         '
         'CheckSensorTimer
         '
-        Me.CheckSensorTimer.Interval = 10000
+        Me.CheckSensorTimer.Interval = 120000
         '
         'Alert1PictureBox
         '
