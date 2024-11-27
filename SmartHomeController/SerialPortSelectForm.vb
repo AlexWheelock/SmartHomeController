@@ -58,6 +58,7 @@ Public Class SerialPortSelectForm
         Try
             SerialConnect(SerialComPortsComboBox.Text)
             SmartHomeControllerForm.ReadyToReceiveData(1)
+            SmartHomeControllerForm.WindowState = FormWindowState.Normal
             Me.Close()
         Catch ex As Exception
             If SerialComPortsComboBox.Text = "" Then

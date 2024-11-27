@@ -40,7 +40,14 @@ Partial Class SmartHomeControllerForm
         Me.UpdateCurrentTimeTimer = New System.Windows.Forms.Timer(Me.components)
         Me.CurrentDateLabel = New System.Windows.Forms.Label()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.CheckSensorTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.Alert1PictureBox = New System.Windows.Forms.PictureBox()
+        Me.Alert1Label = New System.Windows.Forms.Label()
+        Me.Alert2Label = New System.Windows.Forms.Label()
+        Me.Alert2PictureBox = New System.Windows.Forms.PictureBox()
         Me.TopMenuStrip.SuspendLayout()
+        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'IncreaseMaxTempButton
@@ -154,13 +161,13 @@ Partial Class SmartHomeControllerForm
         '
         Me.SetupToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToQyBoardToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.SetupToolStripMenuItem.Name = "SetupToolStripMenuItem"
-        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(49, 20)
+        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(51, 21)
         Me.SetupToolStripMenuItem.Text = "&Setup"
         '
         'ConnectToQyBoardToolStripMenuItem
         '
         Me.ConnectToQyBoardToolStripMenuItem.Name = "ConnectToQyBoardToolStripMenuItem"
-        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.ConnectToQyBoardToolStripMenuItem.Text = "&Connect to Qy@ board"
         '
         'UpdateCurrentTimeTimer
@@ -181,14 +188,62 @@ Partial Class SmartHomeControllerForm
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.ExitToolStripMenuItem.Text = "E&xit"
+        '
+        'CheckSensorTimer
+        '
+        Me.CheckSensorTimer.Interval = 10000
+        '
+        'Alert1PictureBox
+        '
+        Me.Alert1PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
+        Me.Alert1PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.Alert1PictureBox.Cursor = System.Windows.Forms.Cursors.Default
+        Me.Alert1PictureBox.Location = New System.Drawing.Point(16, 234)
+        Me.Alert1PictureBox.Name = "Alert1PictureBox"
+        Me.Alert1PictureBox.Size = New System.Drawing.Size(20, 20)
+        Me.Alert1PictureBox.TabIndex = 12
+        Me.Alert1PictureBox.TabStop = False
+        '
+        'Alert1Label
+        '
+        Me.Alert1Label.AutoSize = True
+        Me.Alert1Label.Location = New System.Drawing.Point(38, 237)
+        Me.Alert1Label.Name = "Alert1Label"
+        Me.Alert1Label.Size = New System.Drawing.Size(177, 15)
+        Me.Alert1Label.TabIndex = 13
+        Me.Alert1Label.Text = "Alert: Safety Interlock Activated"
+        '
+        'Alert2Label
+        '
+        Me.Alert2Label.AutoSize = True
+        Me.Alert2Label.Location = New System.Drawing.Point(38, 262)
+        Me.Alert2Label.Name = "Alert2Label"
+        Me.Alert2Label.Size = New System.Drawing.Size(177, 15)
+        Me.Alert2Label.TabIndex = 15
+        Me.Alert2Label.Text = "Alert: Safety Interlock Activated"
+        '
+        'Alert2PictureBox
+        '
+        Me.Alert2PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
+        Me.Alert2PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.Alert2PictureBox.Cursor = System.Windows.Forms.Cursors.Default
+        Me.Alert2PictureBox.Location = New System.Drawing.Point(16, 259)
+        Me.Alert2PictureBox.Name = "Alert2PictureBox"
+        Me.Alert2PictureBox.Size = New System.Drawing.Size(20, 20)
+        Me.Alert2PictureBox.TabIndex = 14
+        Me.Alert2PictureBox.TabStop = False
         '
         'SmartHomeControllerForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(339, 263)
+        Me.ClientSize = New System.Drawing.Size(339, 289)
+        Me.Controls.Add(Me.Alert2Label)
+        Me.Controls.Add(Me.Alert2PictureBox)
+        Me.Controls.Add(Me.Alert1Label)
+        Me.Controls.Add(Me.Alert1PictureBox)
         Me.Controls.Add(Me.CurrentDateLabel)
         Me.Controls.Add(Me.CurrentTimeLabel)
         Me.Controls.Add(Me.MinTempLabel)
@@ -209,6 +264,8 @@ Partial Class SmartHomeControllerForm
         Me.Text = "Form1"
         Me.TopMenuStrip.ResumeLayout(False)
         Me.TopMenuStrip.PerformLayout()
+        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -231,4 +288,9 @@ Partial Class SmartHomeControllerForm
     Friend WithEvents UpdateCurrentTimeTimer As Timer
     Friend WithEvents CurrentDateLabel As Label
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents CheckSensorTimer As Timer
+    Friend WithEvents Alert1PictureBox As PictureBox
+    Friend WithEvents Alert1Label As Label
+    Friend WithEvents Alert2Label As Label
+    Friend WithEvents Alert2PictureBox As PictureBox
 End Class

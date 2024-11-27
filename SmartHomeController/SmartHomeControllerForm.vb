@@ -7,6 +7,8 @@
 Option Explicit On
 Option Strict On
 
+Imports System.Security.Cryptography.X509Certificates
+Imports System.Threading.Thread
 Public Class SmartHomeControllerForm
 
     Dim settingsList As New List(Of String)
@@ -134,42 +136,263 @@ Public Class SmartHomeControllerForm
         Dim data(SerialPort.BytesToRead) As Byte
         Dim writeData(1) As Byte
         writeData(0) = &H20
-
+        Static input1Active As Boolean
+        Static input2Active As Boolean
+        Static input3Active As Boolean
 
         SerialPort.Read(data, 0, SerialPort.BytesToRead)
         Console.WriteLine($"Bytes Receieved: {SerialPort.BytesToRead}")
         Console.WriteLine($"Digital Inputs: {Hex(data(0))}")
 
         'Dim bitData As New BitArray(CByte(data(0)))
-        If GetBitStatus(data(0), 0) Then
-            writeData(1) = &H1
-            SerialPort.Write(writeData, 0, 2)
-            Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-        Else
-            writeData(1) = &H0
-            SerialPort.Write(writeData, 0, 2)
-            Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+        If GetBitStatus(data(0), 0) = False Then
+            If input1Active = False Then
+                writeData(1) = &H1
+                SerialPort.Write(writeData, 0, 2)
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                FileOpen(1, "..\..\HVAC system log.txt", OpenMode.Append)
+                WriteLine(1, $"{DateTime.Now.ToString("G")}; Alert: Safety Interlock Activated")
+                FileClose(1)
+                If Alert1Label.Visible Then
+                    HandleErrors(3)
+                Else
+                    HandleErrors(1)
+                End If
+                input1Active = True
+                input2Active = False
+                input3Active = False
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            Else
+                If Alert2Label.Visible Then
+                    HandleErrors(2)
+                Else
+                    HandleErrors(0)
+                End If
+                input1Active = False
+                input2Active = False
+                input3Active = False
+                writeData(1) = &H0
+                SerialPort.Write(writeData, 0, 2)
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            End If
+
+        ElseIf GetBitStatus(data(0), 1) = False Then
+            If input2Active = False Then
+                writeData(1) = &H8
+                SerialPort.Write(writeData, 0, 2)
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                Sleep(5000)
+                writeData(1) = &H2
+                SerialPort.Write(writeData, 0, 2)
+                input1Active = False
+                input2Active = True
+                input3Active = False
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            Else
+                input1Active = False
+                input2Active = False
+                input3Active = False
+                writeData(1) = &H0
+                SerialPort.Write(writeData, 0, 2)
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            End If
+
+        ElseIf GetBitStatus(data(0), 2) = False Then
+            If input3Active = False Then
+                writeData(1) = &H4
+                SerialPort.Write(writeData, 0, 2)
+                input1Active = False
+                input2Active = False
+                input3Active = True
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            Else
+                input1Active = False
+                input2Active = False
+                input3Active = False
+                writeData(1) = &H0
+                SerialPort.Write(writeData, 0, 2)
+                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            End If
+
+        ElseIf GetBitStatus(data(0), 3) = False Then
+            CheckSensor()
+
         End If
 
     End Sub
 
-    Sub InhibitFunctions()
-        Static enabled As Boolean
-        Dim writeToDigitalOutputs() As Byte
+    Sub CheckSensor(Optional read As Boolean = False)
+        Static sensorStatus As Boolean
 
-        If enabled Then
-            enabled = False
-            writeToDigitalOutputs(0) = &H20
-            writeToDigitalOutputs(1) = &H0
-            SerialPort.Write(writeToDigitalOutputs, 0, 2)
+        If read = False Then
+            sensorStatus = True
+            If Alert1Label.Text = "System Error: Requires System Maintenance" Then
+                HandleErrors(0)
+            Else
+                If Alert2Label.Visible Then
+                    HandleErrors(1)
+                Else
+                    HandleErrors(0)
+                End If
+            End If
+
+            If CheckSensorTimer.Enabled = False Then
+                CheckSensorTimer.Enabled = True
+            End If
         Else
-            enabled = True
-            writeToDigitalOutputs(0) = &H20
-            writeToDigitalOutputs(1) = &H1
-            SerialPort.Write(writeToDigitalOutputs, 0, 2)
+            If sensorStatus Then
+                sensorStatus = False
+                CheckSensorTimer.Enabled = True
+            Else
+                If Alert1PictureBox.Visible Then
+                    If Alert1Label.Text = "Alert: Safety Interlock Activated" Then
+                        HandleErrors(3)
+                    End If
+                Else
+                    HandleErrors(2)
+                End If
+                FileOpen(1, "..\..\HVAC system log.txt", OpenMode.Append)
+                WriteLine(1, $"{DateTime.Now.ToString("G")}; System Error: Requires System Maintenance")
+                FileClose(1)
+            End If
         End If
 
     End Sub
+
+
+    Sub HandleErrors(mode As Integer)
+        If mode = 0 Then
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Visible = False))
+            Else
+                Alert1Label.Visible = False
+            End If
+
+            If Me.Alert2Label.InvokeRequired Then
+                Me.Alert2Label.Invoke(New MethodInvoker(Sub() Alert2Label.Visible = False))
+            Else
+                Alert2Label.Visible = False
+            End If
+
+            If Me.Alert1PictureBox.InvokeRequired Then
+                Me.Alert1PictureBox.Invoke(New MethodInvoker(Sub() Alert1PictureBox.Visible = False))
+            Else
+                Alert1PictureBox.Visible = False
+            End If
+
+            If Me.Alert2PictureBox.InvokeRequired Then
+                Me.Alert2PictureBox.Invoke(New MethodInvoker(Sub() Alert2PictureBox.Visible = False))
+            Else
+                Alert2PictureBox.Visible = False
+            End If
+
+        ElseIf mode = 1 Then
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Text = "Alert: Safety Interlock Activated"))
+            Else
+                Alert1Label.Text = "Alert: Safety Interlock Activated"
+            End If
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Visible = True))
+            Else
+                Alert1Label.Visible = True
+            End If
+
+            If Me.Alert2Label.InvokeRequired Then
+                Me.Alert2Label.Invoke(New MethodInvoker(Sub() Alert2Label.Visible = False))
+            Else
+                Alert2Label.Visible = False
+            End If
+
+            If Me.Alert1PictureBox.InvokeRequired Then
+                Me.Alert1PictureBox.Invoke(New MethodInvoker(Sub() Alert1PictureBox.Visible = True))
+            Else
+                Alert1PictureBox.Visible = True
+            End If
+
+            If Me.Alert2PictureBox.InvokeRequired Then
+                Me.Alert2PictureBox.Invoke(New MethodInvoker(Sub() Alert2PictureBox.Visible = False))
+            Else
+                Alert2PictureBox.Visible = False
+            End If
+
+        ElseIf mode = 2 Then
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Text = "System Error: Requires System Maintenance"))
+            Else
+                Alert1Label.Text = "System Error: Requires System Maintenance"
+            End If
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Visible = True))
+            Else
+                Alert1Label.Visible = True
+            End If
+
+            If Me.Alert2Label.InvokeRequired Then
+                Me.Alert2Label.Invoke(New MethodInvoker(Sub() Alert2Label.Visible = False))
+            Else
+                Alert2Label.Visible = False
+            End If
+
+            If Me.Alert1PictureBox.InvokeRequired Then
+                Me.Alert1PictureBox.Invoke(New MethodInvoker(Sub() Alert1PictureBox.Visible = True))
+            Else
+                Alert1PictureBox.Visible = True
+            End If
+
+            If Me.Alert2PictureBox.InvokeRequired Then
+                Me.Alert2PictureBox.Invoke(New MethodInvoker(Sub() Alert2PictureBox.Visible = False))
+            Else
+                Alert2PictureBox.Visible = False
+            End If
+
+        ElseIf mode = 3 Then
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Text = "Alert: Safety Interlock Activated"))
+            Else
+                Alert1Label.Text = "Alert: Safety Interlock Activated"
+            End If
+
+            If Me.Alert2Label.InvokeRequired Then
+                Me.Alert2Label.Invoke(New MethodInvoker(Sub() Alert2Label.Text = "System Error: Requires System Maintenance"))
+            Else
+                Alert2Label.Text = "System Error: Requires System Maintenance"
+            End If
+
+            If Me.Alert1Label.InvokeRequired Then
+                Me.Alert1Label.Invoke(New MethodInvoker(Sub() Alert1Label.Visible = True))
+            Else
+                Alert1Label.Visible = True
+            End If
+
+            If Me.Alert2Label.InvokeRequired Then
+                Me.Alert2Label.Invoke(New MethodInvoker(Sub() Alert2Label.Visible = True))
+            Else
+                Alert2Label.Visible = True
+            End If
+
+            If Me.Alert1PictureBox.InvokeRequired Then
+                Me.Alert1PictureBox.Invoke(New MethodInvoker(Sub() Alert1PictureBox.Visible = True))
+            Else
+                Alert1PictureBox.Visible = True
+            End If
+
+            If Me.Alert2PictureBox.InvokeRequired Then
+                Me.Alert2PictureBox.Invoke(New MethodInvoker(Sub() Alert2PictureBox.Visible = True))
+            Else
+                Alert2PictureBox.Visible = True
+            End If
+
+        End If
+
+    End Sub
+
 
     '================================================================================
     'Event Handlers Below Here
@@ -177,11 +400,14 @@ Public Class SmartHomeControllerForm
 
     Private Sub SmartHomeControllerForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If ReadSettings() = False Then
+            Me.WindowState = FormWindowState.Minimized
             SerialPortSelectForm.Show()
         End If
         'ReadyToReceiveData(0)
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
+        HandleErrors(0)
+        CheckSensorTimer.Enabled = True
     End Sub
 
     Private Sub SerialPort_DataReceived(sender As Object, e As IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
@@ -191,13 +417,19 @@ Public Class SmartHomeControllerForm
     End Sub
 
     Private Sub ConnectToQyBoardToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectToQyBoardToolStripMenuItem.Click
+        ReadyToReceiveData(0)
+        Me.WindowState = FormWindowState.Minimized
         SerialPortSelectForm.Show()
+        SerialPortSelectForm.BringToFront()
     End Sub
 
     Private Sub UpdateCurrentTimeTimer_Tick(sender As Object, e As EventArgs) Handles UpdateCurrentTimeTimer.Tick
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
-        ReadDigitalInputs()
+        If ReadyToReceiveData(-1) Then
+            ReadDigitalInputs()
+        End If
+
     End Sub
 
     Private Sub IncreaseMaxTempButton_Click(sender As Object, e As EventArgs) Handles IncreaseMaxTempButton.Click
@@ -220,4 +452,7 @@ Public Class SmartHomeControllerForm
         Quit()
     End Sub
 
+    Private Sub CheckSensorTimer_Tick(sender As Object, e As EventArgs) Handles CheckSensorTimer.Tick
+        CheckSensor(True)
+    End Sub
 End Class
