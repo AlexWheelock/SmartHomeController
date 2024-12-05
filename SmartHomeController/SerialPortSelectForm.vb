@@ -40,10 +40,16 @@ Public Class SerialPortSelectForm
     End Function
 
     Sub SerialConnect(portName As String)
+        Dim data(1) As Byte
+
+        data(0) = &H20
+        data(1) = &H0
+
         SmartHomeControllerForm.SerialPort.Close()
         SmartHomeControllerForm.SerialPort.PortName = portName
         SmartHomeControllerForm.SerialPort.BaudRate = 9600
         SmartHomeControllerForm.SerialPort.Open()
+        SmartHomeControllerForm.SerialPort.Write(data, 0, 2)
     End Sub
 
     Private Sub SerialPortSelectForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load

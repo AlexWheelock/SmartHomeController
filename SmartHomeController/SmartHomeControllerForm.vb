@@ -33,6 +33,10 @@ Public Class SmartHomeControllerForm
         Dim temp1() As String
         Dim currentLine As String
         Dim connected As Boolean = True
+        Dim data(1) As Byte
+
+        data(0) = &H20
+        data(1) = &H0
 
         Try
             FileOpen(1, "..\..\HVAC Settings.txt", OpenMode.Input)
@@ -47,6 +51,7 @@ Public Class SmartHomeControllerForm
             UpdateMinTemp(CInt(settingsList.Item(1)))
             SerialPort.PortName = settingsList.Item(2)
             SerialPort.Open()
+            SerialPort.Write(data, 0, 2)
             ReadyToReceiveData(1)
         Catch ex As Exception
             UpdateMaxTemp(90)
@@ -115,10 +120,19 @@ Public Class SmartHomeControllerForm
         Return currentMinTemp
     End Function
 
-    Sub ReadDigitalInputs()
+    Sub ReadQyInputs()
         Dim data(0) As Byte
-        data(0) = &B110000
 
+        'read digital inputs
+        data(0) = &B110000
+        SerialPort.Write(data, 0, 1)
+
+        'read analog input 1
+        data(0) = &B1010001
+        SerialPort.Write(data, 0, 1)
+
+        'read analog input 2
+        data(0) = &B1010010
         SerialPort.Write(data, 0, 1)
 
     End Sub
@@ -133,36 +147,52 @@ Public Class SmartHomeControllerForm
     End Function
 
     Sub ReceiveData()
-        Dim data(SerialPort.BytesToRead) As Byte
+        Dim data(4) As Byte
         Dim writeData(1) As Byte
         writeData(0) = &H20
         Static input1Active As Boolean
         Static input2Active As Boolean
         Static input3Active As Boolean
+        Dim analogInput1High As Double
+        Dim analogInput1Low As Double
+        Dim homeTemp As Double
+        Dim analoginput2High As Double
+        Dim analoginput2Low As Double
+        Dim unitAirTemp As Double
 
-        SerialPort.Read(data, 0, SerialPort.BytesToRead)
+        Sleep(10)
         Console.WriteLine($"Bytes Receieved: {SerialPort.BytesToRead}")
+        SerialPort.Read(data, 0, SerialPort.BytesToRead)
         Console.WriteLine($"Digital Inputs: {Hex(data(0))}")
 
-        'Dim bitData As New BitArray(CByte(data(0)))
-        If GetBitStatus(data(0), 0) = False Then
-            If input1Active = False Then
-                writeData(1) = &H1
-                SerialPort.Write(writeData, 0, 2)
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-                FileOpen(1, "..\..\HVAC system log.txt", OpenMode.Append)
-                WriteLine(1, $"{DateTime.Now.ToString("G")}; Alert: Safety Interlock Activated")
-                FileClose(1)
-                If Alert1Label.Visible Then
-                    HandleErrors(3)
-                Else
-                    HandleErrors(1)
-                End If
-                input1Active = True
-                input2Active = False
-                input3Active = False
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-            Else
+
+        'read analog input 1
+        analogInput1High = data(1) * 4
+        analogInput1Low = data(2) \ 64
+        homeTemp = Math.Round((((analogInput1High + analogInput1Low) / 17.05) + 40), 1)
+        UpdateTempLabel(homeTemp)
+
+        'read analog input 2
+        analoginput2High = data(3) * 4
+        analoginput2Low = data(4) \ 64
+        unitAirTemp = Math.Round((((analoginput2High + analoginput2Low) / 17.05) + 40), 1)
+        If HeatIndicatorPictureBox.Visible Then
+            If unitAirTemp < 72 Then
+                CheckSensor(False, 0)
+            End If
+        ElseIf CoolingIndicatorPictureBox.Visible Then
+            If unitAirTemp > 68 Then
+                CheckSensor(False, 0)
+            End If
+        Else
+            CheckSensor(False, 1)
+        End If
+
+        Console.WriteLine($"Air Temp: {homeTemp} | Unit Temp: {unitAirTemp}")
+
+        'read digital inputs
+        If input1Active Then
+            If GetBitStatus(data(0), 0) = False Then
                 If Alert2Label.Visible Then
                     HandleErrors(2)
                 Else
@@ -175,75 +205,124 @@ Public Class SmartHomeControllerForm
                 SerialPort.Write(writeData, 0, 2)
                 Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
             End If
+        Else
+            If GetBitStatus(data(0), 0) = False Then
+                If input1Active = False Then
+                    writeData(1) = &H1
+                    SerialPort.Write(writeData, 0, 2)
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                    FileOpen(1, "..\..\HVAC system log.txt", OpenMode.Append)
+                    WriteLine(1, $"{DateTime.Now.ToString("G")}; Alert: Safety Interlock Activated")
+                    FileClose(1)
+                    If Alert1Label.Visible Then
+                        HandleErrors(3)
+                    Else
+                        HandleErrors(1)
+                    End If
+                    input1Active = True
+                    input2Active = False
+                    input3Active = False
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                    UpdateTempIndicators(0)
+                Else
+                    If Alert2Label.Visible Then
+                        HandleErrors(2)
+                    Else
+                        HandleErrors(0)
+                    End If
+                    input1Active = False
+                    input2Active = False
+                    input3Active = False
+                    writeData(1) = &H0
+                    SerialPort.Write(writeData, 0, 2)
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                End If
 
-        ElseIf GetBitStatus(data(0), 1) = False Then
-            If input2Active = False Then
-                writeData(1) = &H8
-                SerialPort.Write(writeData, 0, 2)
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-                Sleep(5000)
-                writeData(1) = &H2
-                SerialPort.Write(writeData, 0, 2)
-                input1Active = False
-                input2Active = True
-                input3Active = False
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-            Else
-                input1Active = False
-                input2Active = False
-                input3Active = False
-                writeData(1) = &H0
-                SerialPort.Write(writeData, 0, 2)
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+            ElseIf GetBitStatus(data(0), 1) = False Then
+                If input2Active = False Then
+                    writeData(1) = &H8
+                    SerialPort.Write(writeData, 0, 2)
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                    Sleep(5000)
+                    writeData(1) = &H2
+                    SerialPort.Write(writeData, 0, 2)
+                    input1Active = False
+                    input2Active = True
+                    input3Active = False
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                    UpdateTempIndicators(1)
+                Else
+                    input1Active = False
+                    input2Active = False
+                    input3Active = False
+                    writeData(1) = &H0
+                    SerialPort.Write(writeData, 0, 2)
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                End If
+
+            ElseIf GetBitStatus(data(0), 2) = False Then
+                If input3Active = False Then
+                    writeData(1) = &H4
+                    SerialPort.Write(writeData, 0, 2)
+                    input1Active = False
+                    input2Active = False
+                    input3Active = True
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                    UpdateTempIndicators(0)
+                Else
+                    input1Active = False
+                    input2Active = False
+                    input3Active = False
+                    writeData(1) = &H0
+                    SerialPort.Write(writeData, 0, 2)
+                    Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
+                End If
+
+            ElseIf GetBitStatus(data(0), 3) = False Then
+                If input3Active Then
+                    If CheckSensorTimer.Enabled = False Then
+                        CheckSensorTimer.Enabled = True
+                    End If
+                Else
+                    CheckSensorTimer.Enabled = False
+                End If
+                CheckSensor(False)
             End If
-
-        ElseIf GetBitStatus(data(0), 2) = False Then
-            If input3Active = False Then
-                writeData(1) = &H4
-                SerialPort.Write(writeData, 0, 2)
-                input1Active = False
-                input2Active = False
-                input3Active = True
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-            Else
-                input1Active = False
-                input2Active = False
-                input3Active = False
-                writeData(1) = &H0
-                SerialPort.Write(writeData, 0, 2)
-                Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
-            End If
-
-        ElseIf GetBitStatus(data(0), 3) = False Then
-            CheckSensor()
-
         End If
+
 
     End Sub
 
-    Sub CheckSensor(Optional read As Boolean = False)
-        Static sensorStatus As Boolean
-
-        If read = False Then
-            sensorStatus = True
-            If Alert1Label.Text = "System Error: Requires System Maintenance" Then
-                HandleErrors(0)
-            Else
-                If Alert2Label.Visible Then
-                    HandleErrors(1)
-                Else
-                    HandleErrors(0)
-                End If
-            End If
-
-            If CheckSensorTimer.Enabled = False Then
-                CheckSensorTimer.Enabled = True
-            End If
+    Sub UpdateTempLabel(homeTemp As Double)
+        If Me.CurrentTempLabel.InvokeRequired Then
+            Me.CurrentTempLabel.Invoke(New MethodInvoker(Sub() CurrentTempLabel.Text = CStr(homeTemp) & "°F"))
         Else
+            CurrentTempLabel.Text = CStr(homeTemp) & "°F"
+        End If
+    End Sub
+
+    Sub CheckSensor(read As Boolean, Optional unitTempOK As Integer = -1)
+        Static sensorStatus As Boolean
+        Static unitTempStatus As Boolean
+
+        If Not read And unitTempOK = -1 Then
+            sensorStatus = True
+        ElseIf read And unitTempOK = -1 Then
             If sensorStatus Then
                 sensorStatus = False
-                CheckSensorTimer.Enabled = True
+            End If
+        End If
+
+        If unitTempOK <> -1 Then
+            If unitTempOK = 1 Then
+                unitTempStatus = True
             Else
+                unitTempStatus = False
+            End If
+        End If
+
+        If read Then
+            If Not sensorStatus And unitTempStatus Then
                 If Alert1PictureBox.Visible Then
                     If Alert1Label.Text = "Alert: Safety Interlock Activated" Then
                         HandleErrors(3)
@@ -254,8 +333,64 @@ Public Class SmartHomeControllerForm
                 FileOpen(1, "..\..\HVAC system log.txt", OpenMode.Append)
                 WriteLine(1, $"{DateTime.Now.ToString("G")}; System Error: Requires System Maintenance")
                 FileClose(1)
+            Else
+                If Alert1Label.Text = "System Error: Requires System Maintenance" Then
+                    HandleErrors(0)
+                Else
+                    If Alert2Label.Visible Then
+                        HandleErrors(1)
+                    Else
+                        HandleErrors(0)
+                    End If
+                End If
+
+                If CheckSensorTimer.Enabled = False Then
+                    CheckSensorTimer.Enabled = True
+                End If
             End If
         End If
+    End Sub
+
+    Sub UpdateTempIndicators(mode As Integer)
+
+        Select Case mode
+            Case 0
+                If Me.HeatIndicatorPictureBox.InvokeRequired Then
+                    Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = False))
+                Else
+                    HeatIndicatorPictureBox.Visible = False
+                End If
+
+                If Me.CoolingIndicatorPictureBox.InvokeRequired Then
+                    Me.CoolingIndicatorPictureBox.Invoke(New MethodInvoker(Sub() CoolingIndicatorPictureBox.Visible = False))
+                Else
+                    CoolingIndicatorPictureBox.Visible = False
+                End If
+            Case 1
+                If Me.HeatIndicatorPictureBox.InvokeRequired Then
+                    Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = True))
+                Else
+                    HeatIndicatorPictureBox.Visible = True
+                End If
+
+                If Me.CoolingIndicatorPictureBox.InvokeRequired Then
+                    Me.CoolingIndicatorPictureBox.Invoke(New MethodInvoker(Sub() CoolingIndicatorPictureBox.Visible = False))
+                Else
+                    CoolingIndicatorPictureBox.Visible = False
+                End If
+            Case 2
+                If Me.HeatIndicatorPictureBox.InvokeRequired Then
+                    Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = False))
+                Else
+                    HeatIndicatorPictureBox.Visible = False
+                End If
+
+                If Me.CoolingIndicatorPictureBox.InvokeRequired Then
+                    Me.CoolingIndicatorPictureBox.Invoke(New MethodInvoker(Sub() CoolingIndicatorPictureBox.Visible = True))
+                Else
+                    CoolingIndicatorPictureBox.Visible = True
+                End If
+        End Select
 
     End Sub
 
@@ -407,7 +542,6 @@ Public Class SmartHomeControllerForm
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
         HandleErrors(0)
-        CheckSensorTimer.Enabled = True
     End Sub
 
     Private Sub SerialPort_DataReceived(sender As Object, e As IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
@@ -427,7 +561,7 @@ Public Class SmartHomeControllerForm
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
         If ReadyToReceiveData(-1) Then
-            ReadDigitalInputs()
+            ReadQyInputs()
         End If
 
     End Sub

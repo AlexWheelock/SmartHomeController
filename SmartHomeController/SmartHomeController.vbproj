@@ -160,5 +160,14 @@
   <ItemGroup>
     <None Include="381599_error_icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="fire.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="snowflake.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="snowflake1.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

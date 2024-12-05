@@ -37,17 +37,21 @@ Partial Class SmartHomeControllerForm
         Me.TopMenuStrip = New System.Windows.Forms.MenuStrip()
         Me.SetupToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConnectToQyBoardToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UpdateCurrentTimeTimer = New System.Windows.Forms.Timer(Me.components)
         Me.CurrentDateLabel = New System.Windows.Forms.Label()
-        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CheckSensorTimer = New System.Windows.Forms.Timer(Me.components)
-        Me.Alert1PictureBox = New System.Windows.Forms.PictureBox()
         Me.Alert1Label = New System.Windows.Forms.Label()
         Me.Alert2Label = New System.Windows.Forms.Label()
         Me.Alert2PictureBox = New System.Windows.Forms.PictureBox()
+        Me.Alert1PictureBox = New System.Windows.Forms.PictureBox()
+        Me.HeatIndicatorPictureBox = New System.Windows.Forms.PictureBox()
+        Me.CoolingIndicatorPictureBox = New System.Windows.Forms.PictureBox()
         Me.TopMenuStrip.SuspendLayout()
-        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'IncreaseMaxTempButton
@@ -170,6 +174,12 @@ Partial Class SmartHomeControllerForm
         Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.ConnectToQyBoardToolStripMenuItem.Text = "&Connect to Qy@ board"
         '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.ExitToolStripMenuItem.Text = "E&xit"
+        '
         'UpdateCurrentTimeTimer
         '
         Me.UpdateCurrentTimeTimer.Enabled = True
@@ -185,26 +195,9 @@ Partial Class SmartHomeControllerForm
         Me.CurrentDateLabel.TabIndex = 11
         Me.CurrentDateLabel.Text = "Date"
         '
-        'ExitToolStripMenuItem
-        '
-        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.ExitToolStripMenuItem.Text = "E&xit"
-        '
         'CheckSensorTimer
         '
         Me.CheckSensorTimer.Interval = 120000
-        '
-        'Alert1PictureBox
-        '
-        Me.Alert1PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
-        Me.Alert1PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Alert1PictureBox.Cursor = System.Windows.Forms.Cursors.Default
-        Me.Alert1PictureBox.Location = New System.Drawing.Point(16, 234)
-        Me.Alert1PictureBox.Name = "Alert1PictureBox"
-        Me.Alert1PictureBox.Size = New System.Drawing.Size(20, 20)
-        Me.Alert1PictureBox.TabIndex = 12
-        Me.Alert1PictureBox.TabStop = False
         '
         'Alert1Label
         '
@@ -235,11 +228,44 @@ Partial Class SmartHomeControllerForm
         Me.Alert2PictureBox.TabIndex = 14
         Me.Alert2PictureBox.TabStop = False
         '
+        'Alert1PictureBox
+        '
+        Me.Alert1PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
+        Me.Alert1PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.Alert1PictureBox.Cursor = System.Windows.Forms.Cursors.Default
+        Me.Alert1PictureBox.Location = New System.Drawing.Point(16, 234)
+        Me.Alert1PictureBox.Name = "Alert1PictureBox"
+        Me.Alert1PictureBox.Size = New System.Drawing.Size(20, 20)
+        Me.Alert1PictureBox.TabIndex = 12
+        Me.Alert1PictureBox.TabStop = False
+        '
+        'HeatIndicatorPictureBox
+        '
+        Me.HeatIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.fire
+        Me.HeatIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.HeatIndicatorPictureBox.Location = New System.Drawing.Point(145, 118)
+        Me.HeatIndicatorPictureBox.Name = "HeatIndicatorPictureBox"
+        Me.HeatIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
+        Me.HeatIndicatorPictureBox.TabIndex = 16
+        Me.HeatIndicatorPictureBox.TabStop = False
+        '
+        'CoolingIndicatorPictureBox
+        '
+        Me.CoolingIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.snowflake1
+        Me.CoolingIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.CoolingIndicatorPictureBox.Location = New System.Drawing.Point(145, 118)
+        Me.CoolingIndicatorPictureBox.Name = "CoolingIndicatorPictureBox"
+        Me.CoolingIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
+        Me.CoolingIndicatorPictureBox.TabIndex = 17
+        Me.CoolingIndicatorPictureBox.TabStop = False
+        '
         'SmartHomeControllerForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(339, 289)
+        Me.Controls.Add(Me.CoolingIndicatorPictureBox)
+        Me.Controls.Add(Me.HeatIndicatorPictureBox)
         Me.Controls.Add(Me.Alert2Label)
         Me.Controls.Add(Me.Alert2PictureBox)
         Me.Controls.Add(Me.Alert1Label)
@@ -264,8 +290,10 @@ Partial Class SmartHomeControllerForm
         Me.Text = "Form1"
         Me.TopMenuStrip.ResumeLayout(False)
         Me.TopMenuStrip.PerformLayout()
-        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -293,4 +321,6 @@ Partial Class SmartHomeControllerForm
     Friend WithEvents Alert1Label As Label
     Friend WithEvents Alert2Label As Label
     Friend WithEvents Alert2PictureBox As PictureBox
+    Friend WithEvents HeatIndicatorPictureBox As PictureBox
+    Friend WithEvents CoolingIndicatorPictureBox As PictureBox
 End Class

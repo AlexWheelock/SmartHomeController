@@ -71,12 +71,42 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property fire() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("fire", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property RobotoSlab_Regular() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("RobotoSlab_Regular", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property snowflake() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("snowflake", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property snowflake1() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("snowflake1", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
     End Module
