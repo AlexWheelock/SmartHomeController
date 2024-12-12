@@ -65,7 +65,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _381599_error_icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("381599_error_icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("_381599_error_icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -76,26 +76,6 @@ Namespace My.Resources
         Friend ReadOnly Property fire() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("fire", resourceCulture)
-                Return CType(obj,System.Drawing.Bitmap)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property RobotoSlab_Regular() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("RobotoSlab_Regular", resourceCulture)
-                Return CType(obj,Byte())
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Drawing.Bitmap.
-        '''</summary>
-        Friend ReadOnly Property snowflake() As System.Drawing.Bitmap
-            Get
-                Dim obj As Object = ResourceManager.GetObject("snowflake", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
