@@ -58,6 +58,7 @@ Partial Class SerialPortSelectForm
         '
         'SerialPortSelectForm
         '
+        Me.BackColor = Color.FromArgb(230, 231, 232)
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(229, 101)

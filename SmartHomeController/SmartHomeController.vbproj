@@ -169,5 +169,8 @@
   <ItemGroup>
     <None Include="snowflake1.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Gear2020.PNG" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

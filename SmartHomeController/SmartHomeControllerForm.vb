@@ -7,6 +7,7 @@
 Option Explicit On
 Option Strict On
 
+Imports System.Runtime.InteropServices
 Imports System.Security.Cryptography.X509Certificates
 Imports System.Threading.Thread
 Public Class SmartHomeControllerForm
@@ -122,18 +123,27 @@ Public Class SmartHomeControllerForm
 
     Sub ReadQyInputs()
         Dim data(0) As Byte
+        Try
+            'read digital inputs
+            data(0) = &B110000
+            SerialPort.Write(data, 0, 1)
 
-        'read digital inputs
-        data(0) = &B110000
-        SerialPort.Write(data, 0, 1)
+            'read analog input 1
+            data(0) = &B1010001
+            SerialPort.Write(data, 0, 1)
 
-        'read analog input 1
-        data(0) = &B1010001
-        SerialPort.Write(data, 0, 1)
+            'read analog input 2
+            data(0) = &B1010010
+            SerialPort.Write(data, 0, 1)
+        Catch ex As Exception
+            SerialPort.Close()
+            ReadyToReceiveData(0)
+            MsgBox("There was an error communicating to the Qy@ board." & vbCrLf _
+                   & vbCrLf _
+                   & "Please reconnect the device.")
+            SerialPortSelectForm.Show()
+        End Try
 
-        'read analog input 2
-        data(0) = &B1010010
-        SerialPort.Write(data, 0, 1)
 
     End Sub
 
@@ -176,16 +186,38 @@ Public Class SmartHomeControllerForm
         analoginput2High = data(3) * 4
         analoginput2Low = data(4) \ 64
         unitAirTemp = Math.Round((((analoginput2High + analoginput2Low) / 17.05) + 40), 1)
-        If HeatIndicatorPictureBox.Visible Then
-            If unitAirTemp < 72 Then
+        If ControllerMode(True, False) Then
+            If unitAirTemp < 70 Then
                 CheckSensor(False, 0)
-            End If
-        ElseIf CoolingIndicatorPictureBox.Visible Then
-            If unitAirTemp > 68 Then
-                CheckSensor(False, 0)
+            Else
+                CheckSensor(False, 1)
             End If
         Else
-            CheckSensor(False, 1)
+            If unitAirTemp > 70 Then
+                CheckSensor(False, 0)
+            Else
+                CheckSensor(False, 1)
+            End If
+        End If
+
+        If Not ControllerMode(True, False) Then 'system in cooling mode
+            If CoolingIndicatorPictureBox.Visible Then
+                If homeTemp <= CDbl(MinTempTextBox.Text) - 2 Then
+                    UpdateTempIndicators(0)
+                End If
+            End If
+            If homeTemp >= CDbl(MinTempTextBox.Text) + 2 Then
+                UpdateTempIndicators(2)
+            End If
+        Else 'system in heating mode
+            If HeatIndicatorPictureBox.Visible Then
+                If homeTemp >= CDbl(MaxTempTextBox.Text) + 2 Then
+                    UpdateTempIndicators(0)
+                End If
+            End If
+            If homeTemp <= CDbl(MaxTempTextBox.Text) - 2 Then
+                UpdateTempIndicators(1)
+            End If
         End If
 
         Console.WriteLine($"Air Temp: {homeTemp} | Unit Temp: {unitAirTemp}")
@@ -246,6 +278,7 @@ Public Class SmartHomeControllerForm
                     Sleep(5000)
                     writeData(1) = &H2
                     SerialPort.Write(writeData, 0, 2)
+                    ControllerMode(False, True)
                     input1Active = False
                     input2Active = True
                     input3Active = False
@@ -322,7 +355,7 @@ Public Class SmartHomeControllerForm
         End If
 
         If read Then
-            If Not sensorStatus And unitTempStatus Then
+            If Not sensorStatus Or Not unitTempStatus Then
                 If Alert1PictureBox.Visible Then
                     If Alert1Label.Text = "Alert: Safety Interlock Activated" Then
                         HandleErrors(3)
@@ -528,6 +561,17 @@ Public Class SmartHomeControllerForm
 
     End Sub
 
+    Function ControllerMode(read As Boolean, heatEnabled As Boolean) As Boolean
+        Static controllerStatus As Boolean
+        'heat = true
+        'a/c = false
+
+        If Not read Then
+            controllerStatus = heatEnabled
+        End If
+
+        Return controllerStatus
+    End Function
 
     '================================================================================
     'Event Handlers Below Here
@@ -542,6 +586,7 @@ Public Class SmartHomeControllerForm
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
         HandleErrors(0)
+        UpdateTempIndicators(0)
     End Sub
 
     Private Sub SerialPort_DataReceived(sender As Object, e As IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
@@ -588,5 +633,15 @@ Public Class SmartHomeControllerForm
 
     Private Sub CheckSensorTimer_Tick(sender As Object, e As EventArgs) Handles CheckSensorTimer.Tick
         CheckSensor(True)
+    End Sub
+
+    Private Sub HeatButton_Click(sender As Object, e As EventArgs) Handles HeatButton.Click
+        ControllerMode(False, True)
+        UpdateTempIndicators(1)
+    End Sub
+
+    Private Sub CoolButton_Click(sender As Object, e As EventArgs) Handles CoolButton.Click
+        ControllerMode(False, False)
+        UpdateTempIndicators(2)
     End Sub
 End Class

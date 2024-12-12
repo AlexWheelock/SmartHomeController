@@ -43,34 +43,43 @@ Partial Class SmartHomeControllerForm
         Me.CheckSensorTimer = New System.Windows.Forms.Timer(Me.components)
         Me.Alert1Label = New System.Windows.Forms.Label()
         Me.Alert2Label = New System.Windows.Forms.Label()
+        Me.HeatButton = New System.Windows.Forms.Button()
+        Me.CoolButton = New System.Windows.Forms.Button()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.CoolingIndicatorPictureBox = New System.Windows.Forms.PictureBox()
+        Me.HeatIndicatorPictureBox = New System.Windows.Forms.PictureBox()
         Me.Alert2PictureBox = New System.Windows.Forms.PictureBox()
         Me.Alert1PictureBox = New System.Windows.Forms.PictureBox()
-        Me.HeatIndicatorPictureBox = New System.Windows.Forms.PictureBox()
-        Me.CoolingIndicatorPictureBox = New System.Windows.Forms.PictureBox()
         Me.TopMenuStrip.SuspendLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'IncreaseMaxTempButton
         '
+        Me.IncreaseMaxTempButton.BackColor = System.Drawing.Color.FromArgb(CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer))
         Me.IncreaseMaxTempButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.IncreaseMaxTempButton.Location = New System.Drawing.Point(230, 167)
+        Me.IncreaseMaxTempButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.IncreaseMaxTempButton.ForeColor = System.Drawing.Color.Black
+        Me.IncreaseMaxTempButton.Location = New System.Drawing.Point(110, 186)
         Me.IncreaseMaxTempButton.Name = "IncreaseMaxTempButton"
-        Me.IncreaseMaxTempButton.Size = New System.Drawing.Size(22, 22)
+        Me.IncreaseMaxTempButton.Size = New System.Drawing.Size(38, 38)
         Me.IncreaseMaxTempButton.TabIndex = 0
         Me.IncreaseMaxTempButton.Text = "+"
-        Me.IncreaseMaxTempButton.TextAlign = System.Drawing.ContentAlignment.TopCenter
         Me.IncreaseMaxTempButton.UseVisualStyleBackColor = True
         '
         'DecreaseMaxTempButton
         '
+        Me.DecreaseMaxTempButton.BackColor = System.Drawing.Color.FromArgb(CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer))
         Me.DecreaseMaxTempButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.DecreaseMaxTempButton.Location = New System.Drawing.Point(258, 167)
+        Me.DecreaseMaxTempButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DecreaseMaxTempButton.ForeColor = System.Drawing.Color.Black
+        Me.DecreaseMaxTempButton.Location = New System.Drawing.Point(154, 186)
         Me.DecreaseMaxTempButton.Name = "DecreaseMaxTempButton"
-        Me.DecreaseMaxTempButton.Size = New System.Drawing.Size(22, 22)
+        Me.DecreaseMaxTempButton.Size = New System.Drawing.Size(38, 38)
         Me.DecreaseMaxTempButton.TabIndex = 1
         Me.DecreaseMaxTempButton.Text = "-"
         Me.DecreaseMaxTempButton.UseVisualStyleBackColor = True
@@ -78,73 +87,88 @@ Partial Class SmartHomeControllerForm
         'CurrentTempLabel
         '
         Me.CurrentTempLabel.AutoSize = True
-        Me.CurrentTempLabel.Font = New System.Drawing.Font("Roboto Slab", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CurrentTempLabel.Location = New System.Drawing.Point(12, 118)
+        Me.CurrentTempLabel.Font = New System.Drawing.Font("Roboto Slab", 28.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CurrentTempLabel.Location = New System.Drawing.Point(8, 130)
         Me.CurrentTempLabel.Name = "CurrentTempLabel"
-        Me.CurrentTempLabel.Size = New System.Drawing.Size(78, 32)
+        Me.CurrentTempLabel.Size = New System.Drawing.Size(152, 63)
         Me.CurrentTempLabel.TabIndex = 2
         Me.CurrentTempLabel.Text = "Temp"
         '
         'MaxTempTextBox
         '
-        Me.MaxTempTextBox.Location = New System.Drawing.Point(124, 167)
+        Me.MaxTempTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(231, Byte), Integer), CType(CType(232, Byte), Integer))
+        Me.MaxTempTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.MaxTempTextBox.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.MaxTempTextBox.Location = New System.Drawing.Point(68, 193)
         Me.MaxTempTextBox.Name = "MaxTempTextBox"
-        Me.MaxTempTextBox.Size = New System.Drawing.Size(100, 22)
+        Me.MaxTempTextBox.Size = New System.Drawing.Size(36, 31)
         Me.MaxTempTextBox.TabIndex = 3
+        Me.MaxTempTextBox.Text = "70"
         '
         'MinTempTextBox
         '
-        Me.MinTempTextBox.Location = New System.Drawing.Point(124, 200)
+        Me.MinTempTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(231, Byte), Integer), CType(CType(232, Byte), Integer))
+        Me.MinTempTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.MinTempTextBox.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.MinTempTextBox.Location = New System.Drawing.Point(68, 237)
         Me.MinTempTextBox.Name = "MinTempTextBox"
-        Me.MinTempTextBox.Size = New System.Drawing.Size(100, 22)
+        Me.MinTempTextBox.Size = New System.Drawing.Size(36, 31)
         Me.MinTempTextBox.TabIndex = 4
+        Me.MinTempTextBox.Text = "50"
         '
         'MaxTempLabel
         '
         Me.MaxTempLabel.AutoSize = True
-        Me.MaxTempLabel.Location = New System.Drawing.Point(15, 170)
+        Me.MaxTempLabel.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.MaxTempLabel.Location = New System.Drawing.Point(13, 193)
         Me.MaxTempLabel.Name = "MaxTempLabel"
-        Me.MaxTempLabel.Size = New System.Drawing.Size(104, 15)
+        Me.MaxTempLabel.Size = New System.Drawing.Size(68, 31)
         Me.MaxTempLabel.TabIndex = 5
-        Me.MaxTempLabel.Text = "Max Temperature:"
+        Me.MaxTempLabel.Text = "Max:"
         '
         'DecreaseMinTempButton
         '
+        Me.DecreaseMinTempButton.BackColor = System.Drawing.Color.FromArgb(CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer))
         Me.DecreaseMinTempButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.DecreaseMinTempButton.Location = New System.Drawing.Point(258, 200)
+        Me.DecreaseMinTempButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DecreaseMinTempButton.ForeColor = System.Drawing.Color.Black
+        Me.DecreaseMinTempButton.Location = New System.Drawing.Point(154, 230)
         Me.DecreaseMinTempButton.Name = "DecreaseMinTempButton"
-        Me.DecreaseMinTempButton.Size = New System.Drawing.Size(22, 22)
+        Me.DecreaseMinTempButton.Size = New System.Drawing.Size(38, 38)
         Me.DecreaseMinTempButton.TabIndex = 7
         Me.DecreaseMinTempButton.Text = "-"
         Me.DecreaseMinTempButton.UseVisualStyleBackColor = True
         '
         'IncreaseMinTempButton
         '
+        Me.IncreaseMinTempButton.BackColor = System.Drawing.Color.FromArgb(CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(130, Byte), Integer))
         Me.IncreaseMinTempButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.IncreaseMinTempButton.Location = New System.Drawing.Point(230, 200)
+        Me.IncreaseMinTempButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.IncreaseMinTempButton.ForeColor = System.Drawing.Color.Black
+        Me.IncreaseMinTempButton.Location = New System.Drawing.Point(110, 230)
         Me.IncreaseMinTempButton.Name = "IncreaseMinTempButton"
-        Me.IncreaseMinTempButton.Size = New System.Drawing.Size(22, 22)
+        Me.IncreaseMinTempButton.Size = New System.Drawing.Size(38, 38)
         Me.IncreaseMinTempButton.TabIndex = 6
         Me.IncreaseMinTempButton.Text = "+"
-        Me.IncreaseMinTempButton.TextAlign = System.Drawing.ContentAlignment.TopCenter
         Me.IncreaseMinTempButton.UseVisualStyleBackColor = True
         '
         'MinTempLabel
         '
         Me.MinTempLabel.AutoSize = True
-        Me.MinTempLabel.Location = New System.Drawing.Point(15, 204)
+        Me.MinTempLabel.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.MinTempLabel.Location = New System.Drawing.Point(13, 237)
         Me.MinTempLabel.Name = "MinTempLabel"
-        Me.MinTempLabel.Size = New System.Drawing.Size(103, 15)
+        Me.MinTempLabel.Size = New System.Drawing.Size(63, 31)
         Me.MinTempLabel.TabIndex = 8
-        Me.MinTempLabel.Text = "Min Temperature:"
+        Me.MinTempLabel.Text = "Min:"
         '
         'CurrentTimeLabel
         '
         Me.CurrentTimeLabel.AutoSize = True
         Me.CurrentTimeLabel.Font = New System.Drawing.Font("Roboto Slab", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CurrentTimeLabel.Location = New System.Drawing.Point(12, 64)
+        Me.CurrentTimeLabel.Location = New System.Drawing.Point(12, 43)
         Me.CurrentTimeLabel.Name = "CurrentTimeLabel"
-        Me.CurrentTimeLabel.Size = New System.Drawing.Size(72, 32)
+        Me.CurrentTimeLabel.Size = New System.Drawing.Size(92, 40)
         Me.CurrentTimeLabel.TabIndex = 9
         Me.CurrentTimeLabel.Text = "Time"
         '
@@ -154,10 +178,11 @@ Partial Class SmartHomeControllerForm
         'TopMenuStrip
         '
         Me.TopMenuStrip.Font = New System.Drawing.Font("Roboto Slab", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TopMenuStrip.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.TopMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SetupToolStripMenuItem})
         Me.TopMenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.TopMenuStrip.Name = "TopMenuStrip"
-        Me.TopMenuStrip.Size = New System.Drawing.Size(339, 25)
+        Me.TopMenuStrip.Size = New System.Drawing.Size(357, 29)
         Me.TopMenuStrip.TabIndex = 10
         Me.TopMenuStrip.Text = "MenuStrip1"
         '
@@ -165,19 +190,19 @@ Partial Class SmartHomeControllerForm
         '
         Me.SetupToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToQyBoardToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.SetupToolStripMenuItem.Name = "SetupToolStripMenuItem"
-        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(51, 21)
+        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(64, 25)
         Me.SetupToolStripMenuItem.Text = "&Setup"
         '
         'ConnectToQyBoardToolStripMenuItem
         '
         Me.ConnectToQyBoardToolStripMenuItem.Name = "ConnectToQyBoardToolStripMenuItem"
-        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(248, 26)
         Me.ConnectToQyBoardToolStripMenuItem.Text = "&Connect to Qy@ board"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(248, 26)
         Me.ExitToolStripMenuItem.Text = "E&xit"
         '
         'UpdateCurrentTimeTimer
@@ -189,40 +214,90 @@ Partial Class SmartHomeControllerForm
         '
         Me.CurrentDateLabel.AutoSize = True
         Me.CurrentDateLabel.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CurrentDateLabel.Location = New System.Drawing.Point(14, 40)
+        Me.CurrentDateLabel.Location = New System.Drawing.Point(14, 74)
         Me.CurrentDateLabel.Name = "CurrentDateLabel"
-        Me.CurrentDateLabel.Size = New System.Drawing.Size(44, 22)
+        Me.CurrentDateLabel.Size = New System.Drawing.Size(53, 27)
         Me.CurrentDateLabel.TabIndex = 11
         Me.CurrentDateLabel.Text = "Date"
         '
         'CheckSensorTimer
         '
-        Me.CheckSensorTimer.Interval = 120000
+        Me.CheckSensorTimer.Interval = 10000
         '
         'Alert1Label
         '
         Me.Alert1Label.AutoSize = True
-        Me.Alert1Label.Location = New System.Drawing.Point(38, 237)
+        Me.Alert1Label.Location = New System.Drawing.Point(41, 284)
         Me.Alert1Label.Name = "Alert1Label"
-        Me.Alert1Label.Size = New System.Drawing.Size(177, 15)
+        Me.Alert1Label.Size = New System.Drawing.Size(216, 19)
         Me.Alert1Label.TabIndex = 13
         Me.Alert1Label.Text = "Alert: Safety Interlock Activated"
         '
         'Alert2Label
         '
         Me.Alert2Label.AutoSize = True
-        Me.Alert2Label.Location = New System.Drawing.Point(38, 262)
+        Me.Alert2Label.Location = New System.Drawing.Point(41, 309)
         Me.Alert2Label.Name = "Alert2Label"
-        Me.Alert2Label.Size = New System.Drawing.Size(177, 15)
+        Me.Alert2Label.Size = New System.Drawing.Size(216, 19)
         Me.Alert2Label.TabIndex = 15
         Me.Alert2Label.Text = "Alert: Safety Interlock Activated"
+        '
+        'HeatButton
+        '
+        Me.HeatButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.HeatButton.Location = New System.Drawing.Point(235, 186)
+        Me.HeatButton.Name = "HeatButton"
+        Me.HeatButton.Size = New System.Drawing.Size(82, 38)
+        Me.HeatButton.TabIndex = 19
+        Me.HeatButton.Text = "Heat"
+        Me.HeatButton.UseVisualStyleBackColor = True
+        '
+        'CoolButton
+        '
+        Me.CoolButton.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CoolButton.Location = New System.Drawing.Point(235, 230)
+        Me.CoolButton.Name = "CoolButton"
+        Me.CoolButton.Size = New System.Drawing.Size(82, 38)
+        Me.CoolButton.TabIndex = 20
+        Me.CoolButton.Text = "A/C"
+        Me.CoolButton.UseVisualStyleBackColor = True
+        '
+        'PictureBox1
+        '
+        Me.PictureBox1.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.Gear2020
+        Me.PictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PictureBox1.Location = New System.Drawing.Point(268, 41)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(75, 75)
+        Me.PictureBox1.TabIndex = 18
+        Me.PictureBox1.TabStop = False
+        '
+        'CoolingIndicatorPictureBox
+        '
+        Me.CoolingIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.snowflake1
+        Me.CoolingIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.CoolingIndicatorPictureBox.Location = New System.Drawing.Point(142, 134)
+        Me.CoolingIndicatorPictureBox.Name = "CoolingIndicatorPictureBox"
+        Me.CoolingIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
+        Me.CoolingIndicatorPictureBox.TabIndex = 17
+        Me.CoolingIndicatorPictureBox.TabStop = False
+        '
+        'HeatIndicatorPictureBox
+        '
+        Me.HeatIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.fire
+        Me.HeatIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.HeatIndicatorPictureBox.Location = New System.Drawing.Point(142, 134)
+        Me.HeatIndicatorPictureBox.Name = "HeatIndicatorPictureBox"
+        Me.HeatIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
+        Me.HeatIndicatorPictureBox.TabIndex = 16
+        Me.HeatIndicatorPictureBox.TabStop = False
         '
         'Alert2PictureBox
         '
         Me.Alert2PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
         Me.Alert2PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.Alert2PictureBox.Cursor = System.Windows.Forms.Cursors.Default
-        Me.Alert2PictureBox.Location = New System.Drawing.Point(16, 259)
+        Me.Alert2PictureBox.Location = New System.Drawing.Point(19, 306)
         Me.Alert2PictureBox.Name = "Alert2PictureBox"
         Me.Alert2PictureBox.Size = New System.Drawing.Size(20, 20)
         Me.Alert2PictureBox.TabIndex = 14
@@ -233,37 +308,21 @@ Partial Class SmartHomeControllerForm
         Me.Alert1PictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources._381599_error_icon
         Me.Alert1PictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.Alert1PictureBox.Cursor = System.Windows.Forms.Cursors.Default
-        Me.Alert1PictureBox.Location = New System.Drawing.Point(16, 234)
+        Me.Alert1PictureBox.Location = New System.Drawing.Point(19, 281)
         Me.Alert1PictureBox.Name = "Alert1PictureBox"
         Me.Alert1PictureBox.Size = New System.Drawing.Size(20, 20)
         Me.Alert1PictureBox.TabIndex = 12
         Me.Alert1PictureBox.TabStop = False
         '
-        'HeatIndicatorPictureBox
-        '
-        Me.HeatIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.fire
-        Me.HeatIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.HeatIndicatorPictureBox.Location = New System.Drawing.Point(145, 118)
-        Me.HeatIndicatorPictureBox.Name = "HeatIndicatorPictureBox"
-        Me.HeatIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
-        Me.HeatIndicatorPictureBox.TabIndex = 16
-        Me.HeatIndicatorPictureBox.TabStop = False
-        '
-        'CoolingIndicatorPictureBox
-        '
-        Me.CoolingIndicatorPictureBox.BackgroundImage = Global.SmartHomeController.My.Resources.Resources.snowflake1
-        Me.CoolingIndicatorPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.CoolingIndicatorPictureBox.Location = New System.Drawing.Point(145, 118)
-        Me.CoolingIndicatorPictureBox.Name = "CoolingIndicatorPictureBox"
-        Me.CoolingIndicatorPictureBox.Size = New System.Drawing.Size(43, 43)
-        Me.CoolingIndicatorPictureBox.TabIndex = 17
-        Me.CoolingIndicatorPictureBox.TabStop = False
-        '
         'SmartHomeControllerForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 19.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(339, 289)
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(231, Byte), Integer), CType(CType(232, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(357, 340)
+        Me.Controls.Add(Me.CoolButton)
+        Me.Controls.Add(Me.HeatButton)
+        Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.CoolingIndicatorPictureBox)
         Me.Controls.Add(Me.HeatIndicatorPictureBox)
         Me.Controls.Add(Me.Alert2Label)
@@ -287,13 +346,14 @@ Partial Class SmartHomeControllerForm
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Name = "SmartHomeControllerForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Form1"
+        Me.Text = "Smart Home Controller"
         Me.TopMenuStrip.ResumeLayout(False)
         Me.TopMenuStrip.PerformLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Alert2PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Alert1PictureBox, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.HeatIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -323,4 +383,7 @@ Partial Class SmartHomeControllerForm
     Friend WithEvents Alert2PictureBox As PictureBox
     Friend WithEvents HeatIndicatorPictureBox As PictureBox
     Friend WithEvents CoolingIndicatorPictureBox As PictureBox
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents HeatButton As Button
+    Friend WithEvents CoolButton As Button
 End Class

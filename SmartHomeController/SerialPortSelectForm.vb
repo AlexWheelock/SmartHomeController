@@ -45,14 +45,20 @@ Public Class SerialPortSelectForm
         data(0) = &H20
         data(1) = &H0
 
-        SmartHomeControllerForm.SerialPort.Close()
-        SmartHomeControllerForm.SerialPort.PortName = portName
-        SmartHomeControllerForm.SerialPort.BaudRate = 9600
-        SmartHomeControllerForm.SerialPort.Open()
-        SmartHomeControllerForm.SerialPort.Write(data, 0, 2)
+        Try
+            SmartHomeControllerForm.SerialPort.Close()
+            SmartHomeControllerForm.SerialPort.PortName = portName
+            SmartHomeControllerForm.SerialPort.BaudRate = 9600
+            SmartHomeControllerForm.SerialPort.Open()
+            SmartHomeControllerForm.SerialPort.Write(data, 0, 2)
+        Catch ex As Exception
+
+        End Try
+
     End Sub
 
     Private Sub SerialPortSelectForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        SmartHomeControllerForm.WindowState = FormWindowState.Minimized
         GetComPorts()
     End Sub
 
