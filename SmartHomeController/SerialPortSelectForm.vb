@@ -2,6 +2,7 @@
 Imports System.Threading.Thread
 Public Class SerialPortSelectForm
 
+    'Try and connect to each COM port to determine which one the Qy@ board is connected to in order to populate the combo box
     Sub GetComPorts()
         SerialComPortsComboBox.Items.Clear()
         SerialComPortsComboBox.Text = ""
@@ -37,6 +38,7 @@ Public Class SerialPortSelectForm
         SmartHomeControllerForm.SerialPort.Close()
     End Sub
 
+    'Write to the Qy@ board to see if you get a handshake back
     Function GetSettings() As Byte()
         Dim data(0) As Byte
         data(0) = &B11110000
@@ -50,6 +52,7 @@ Public Class SerialPortSelectForm
         Return data
     End Function
 
+    'Try to open the port with the selected portname
     Sub SerialConnect(portName As String)
         Dim data(1) As Byte
 
@@ -68,16 +71,19 @@ Public Class SerialPortSelectForm
 
     End Sub
 
+    'upon startup, bring form to front, and then populate the combo box
     Private Sub SerialPortSelectForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SmartHomeControllerForm.WindowState = FormWindowState.Minimized
         Me.TopMost = True
         GetComPorts()
     End Sub
 
+    'Repopulate the combo box
     Private Sub RefreshButton_Click(sender As Object, e As EventArgs) Handles RefreshButton.Click
         GetComPorts()
     End Sub
 
+    'Try to connect to the Qy@ board, and close this form and bring back the main form
     Private Sub ConnectButton_Click(sender As Object, e As EventArgs) Handles ConnectButton.Click
         Try
             SmartHomeControllerForm.SerialPort.PortName = SerialComPortsComboBox.Text

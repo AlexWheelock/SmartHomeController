@@ -29,6 +29,8 @@ Public Class SmartHomeControllerForm
         Return currentState
     End Function
 
+    'Tries to open normally with previous settings
+    'Return boolean indicating whether connection was made properly
     Function ReadSettings() As Boolean
         Dim temp() As String
         Dim temp1() As String
@@ -39,7 +41,7 @@ Public Class SmartHomeControllerForm
         data(0) = &H20
         data(1) = &H0
 
-        Try
+        Try 'try to open with previous settings/port
             FileOpen(1, "..\..\HVAC Settings.txt", OpenMode.Input)
             Do Until EOF(1)
                 currentLine = LineInput(1)
@@ -55,7 +57,7 @@ Public Class SmartHomeControllerForm
             SerialPort.Write(data, 0, 2)
             ReadyToReceiveData(1)
             CheckSensorTimer.Enabled = True
-        Catch ex As Exception
+        Catch ex As Exception 'Error opening with previous settings, set to default
             UpdateMaxTemp(90)
             UpdateMinTemp(50)
             ReadyToReceiveData(0)
@@ -65,6 +67,7 @@ Public Class SmartHomeControllerForm
         Return connected
     End Function
 
+    'Save settings and port name into HVAC Settings.txt
     Sub Quit()
         FileOpen(1, "..\..\HVAC Settings.txt", OpenMode.Output)
         WriteLine(1, $"max_temp,{MaxTempTextBox.Text} ")
@@ -74,6 +77,7 @@ Public Class SmartHomeControllerForm
         Me.Close()
     End Sub
 
+    'Used to handle changing the max temp with the increment or decrement buttons, as well as updating the displayed max
     Function UpdateMaxTemp(update As Integer, Optional read As Boolean = False) As Double
         Static currentMaxTemp As Double
 
@@ -98,6 +102,7 @@ Public Class SmartHomeControllerForm
         Return currentMaxTemp
     End Function
 
+    'Used to handle changing the min temp with the increment or decrement buttons, as well as updating the displayed min
     Function UpdateMinTemp(update As Integer, Optional read As Boolean = False) As Double
         Static currentMinTemp As Double
 
@@ -122,6 +127,9 @@ Public Class SmartHomeControllerForm
         Return currentMinTemp
     End Function
 
+    'Read Qy@ board inputs every 250 ms
+    'Read digital inputs, then analog input 1 then 2
+    'If connection to the Qy@ board fails, it requires the user to re-connect the Qy@ board
     Sub ReadQyInputs()
         Dim data(0) As Byte
         Try
@@ -144,10 +152,11 @@ Public Class SmartHomeControllerForm
                    & "Please reconnect the device.")
             SerialPortSelectForm.Show()
         End Try
-
-
     End Sub
 
+    'Used to test individual bits read from the Qy@ board
+    'data is the byte containing the bit you want to test
+    'index is the bit (0-7) that you want to test
     Function GetBitStatus(data As Byte, index As Integer) As Boolean
         Dim bits As New BitArray({data})
         If bits(index) Then
@@ -157,6 +166,7 @@ Public Class SmartHomeControllerForm
         End If
     End Function
 
+    'Receive and handle data from the Qy@ board
     Sub ReceiveData()
         Dim data(105) As Byte
         Dim writeData(1) As Byte
@@ -171,7 +181,7 @@ Public Class SmartHomeControllerForm
         Dim analoginput2Low As Double
         Dim unitAirTemp As Double
 
-        Sleep(5)
+        Sleep(5) 'Sleep to ensure all bytes are received
         Console.WriteLine($"Bytes Receieved: {SerialPort.BytesToRead}")
         SerialPort.Read(data, 0, SerialPort.BytesToRead)
         Console.WriteLine($"Digital Inputs: {Hex(data(0))}")
@@ -188,45 +198,48 @@ Public Class SmartHomeControllerForm
         analoginput2Low = data(4) \ 64
         unitAirTemp = Math.Round((((analoginput2High + analoginput2Low) / 17.05) + 40), 1)
 
-        If ControllerMode(True, 0) = 2 Then
+        'determine if the unit is functioning properly, throw errors if not when tested every two minutes
+        'if heating, the unit should be above air temp
+        'if cooling, the unit should be below air temp
+        If ControllerMode(True, 0) = 2 Then 'heating
             If unitAirTemp <= 70 Then
-                CheckSensor(False, 0)
+                CheckSensor(False, 0) 'unit is not working correctly
             Else
-                CheckSensor(False, 1)
+                CheckSensor(False, 1) 'unit is working properly
             End If
-        ElseIf ControllerMode(True, 0) = 1 Then
+        ElseIf ControllerMode(True, 0) = 1 Then 'cooling
             If unitAirTemp >= 70 Then
-                CheckSensor(False, 0)
+                CheckSensor(False, 0) 'unit is not working correctly
             Else
-                CheckSensor(False, 1)
+                CheckSensor(False, 1) 'unit is working correctly
             End If
         Else
-            CheckSensor(False, 1)
+            CheckSensor(False, 1) 'ignore if neither in heating nor cooling modes
         End If
 
         'determine if the heat or a/c needs to be turned on
         If ControllerMode(True, 0) = 1 Then 'system in cooling mode
             If CoolingIndicatorPictureBox.Visible Then
-                If homeTemp <= CDbl(MinTempTextBox.Text) - 2 Then
+                If homeTemp <= CDbl(MinTempTextBox.Text) - 2 Then 'if actively cooling, and outside of the 2 degree hysteresis, stop cooling
                     UpdateTempIndicators(0)
                     writeData(1) = &H0
                     SerialPort.Write(writeData, 0, 2)
                 End If
             End If
-            If homeTemp >= CDbl(MinTempTextBox.Text) + 2 Then
+            If homeTemp >= CDbl(MinTempTextBox.Text) + 2 Then 'if not cooling and 2 degrees above min temp, start cooling
                 UpdateTempIndicators(2)
                 writeData(1) = &H4
                 SerialPort.Write(writeData, 0, 2)
             End If
         ElseIf ControllerMode(True, 0) = 2 Then 'system in heating mode
             If HeatIndicatorPictureBox.Visible Then
-                If homeTemp >= CDbl(MaxTempTextBox.Text) + 2 Then
+                If homeTemp >= CDbl(MaxTempTextBox.Text) + 2 Then 'if actively heating, and outside the 2 degree hysteresis, stop heating
                     UpdateTempIndicators(0)
                     writeData(1) = &H2
                     SerialPort.Write(writeData, 0, 2)
                 End If
             End If
-            If homeTemp <= CDbl(MaxTempTextBox.Text) - 2 Then
+            If homeTemp <= CDbl(MaxTempTextBox.Text) - 2 Then 'if not heating, and 2 degrees below max temp, start heating
                 UpdateTempIndicators(1)
                 writeData(1) = &H6
                 SerialPort.Write(writeData, 0, 2)
@@ -236,7 +249,7 @@ Public Class SmartHomeControllerForm
         Console.WriteLine($"Air Temp: {homeTemp} | Unit Temp: {unitAirTemp}")
 
         'read digital inputs
-        If input1Active Then
+        If input1Active Then    'if safety interlock engaged, ignore all other digital inputs until it is pressed again
             If GetBitStatus(data(0), 0) = False Then
                 If Alert2Label.Visible Then
                     HandleErrors(2)
@@ -251,7 +264,7 @@ Public Class SmartHomeControllerForm
                 Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
             End If
         Else
-            If GetBitStatus(data(0), 0) = False Then
+            If GetBitStatus(data(0), 0) = False Then 'determine if the safety interlock was pressed
                 If input1Active = False Then
                     writeData(1) = &H1
                     SerialPort.Write(writeData, 0, 2)
@@ -284,7 +297,7 @@ Public Class SmartHomeControllerForm
                     Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
                 End If
 
-            ElseIf GetBitStatus(data(0), 1) = False Then
+            ElseIf GetBitStatus(data(0), 1) = False Then 'determine if the heater button is pressed
                 If input2Active = False Then
                     writeData(1) = &H8
                     SerialPort.Write(writeData, 0, 2)
@@ -307,7 +320,7 @@ Public Class SmartHomeControllerForm
                     Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
                 End If
 
-            ElseIf GetBitStatus(data(0), 2) = False Then
+            ElseIf GetBitStatus(data(0), 2) = False Then 'determine if the fan button was pressed
                 If input3Active = False Then
                     writeData(1) = &H4
                     SerialPort.Write(writeData, 0, 2)
@@ -326,14 +339,14 @@ Public Class SmartHomeControllerForm
                     Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
                 End If
 
-            ElseIf GetBitStatus(data(0), 3) = False Then
+            ElseIf GetBitStatus(data(0), 3) = False Then 'if pressed, then indicate the differential sensor is working
                 CheckSensor(False)
             End If
         End If
 
     End Sub
 
-    Sub UpdateTempLabel(homeTemp As Double)
+    Sub UpdateTempLabel(homeTemp As Double) 'Update the temperature and date every 1 second
         If Me.CurrentTempLabel.InvokeRequired Then
             Me.CurrentTempLabel.Invoke(New MethodInvoker(Sub() CurrentTempLabel.Text = CStr(homeTemp) & "°F"))
         Else
@@ -341,10 +354,12 @@ Public Class SmartHomeControllerForm
         End If
     End Sub
 
+    'determine if the pressure sensor and unit temp are okay
     Sub CheckSensor(read As Boolean, Optional unitTempOK As Integer = -1)
         Static sensorStatus As Boolean
         Static unitTempStatus As Boolean
 
+        'ignore the unit temp status if not in either heating or cooling
         If ControllerMode(True, 0) = 0 Then
             unitTempStatus = True
         End If
@@ -364,6 +379,7 @@ Public Class SmartHomeControllerForm
         End If
 
         'determine if the sensors are working and in the proper temperature range
+        'if not, throw an error and request system maintenance, and save it along with the time into the system log
         If read Then
             If Not sensorStatus Or Not unitTempStatus Then
                 If Alert1PictureBox.Visible Then
@@ -396,6 +412,7 @@ Public Class SmartHomeControllerForm
             sensorStatus = False
         End If
 
+        'allow instant fixing of errors if the problems go away
         If unitTempStatus And sensorStatus Then
             If Alert1Label.Visible Then
                 If Alert1Label.Text = "System Error: Requires System Maintenance" Then
@@ -408,9 +425,15 @@ Public Class SmartHomeControllerForm
         End If
     End Sub
 
+    'used to update the heating/cooling indicators and make them visible
+    'invoke added due to cross-threading errors occurring during testing
+    'mode = 0: neither indicator visible
+    'mode = 1: heating indicator visible
+    'mode = 2: cooling indicator visible
     Sub UpdateTempIndicators(mode As Integer)
 
         Select Case mode
+            'neither indicator visible
             Case 0
                 If Me.HeatIndicatorPictureBox.InvokeRequired Then
                     Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = False))
@@ -423,6 +446,8 @@ Public Class SmartHomeControllerForm
                 Else
                     CoolingIndicatorPictureBox.Visible = False
                 End If
+
+            'heating indicator visible
             Case 1
                 If Me.HeatIndicatorPictureBox.InvokeRequired Then
                     Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = True))
@@ -435,6 +460,7 @@ Public Class SmartHomeControllerForm
                 Else
                     CoolingIndicatorPictureBox.Visible = False
                 End If
+            'cooling indicator visible
             Case 2
                 If Me.HeatIndicatorPictureBox.InvokeRequired Then
                     Me.HeatIndicatorPictureBox.Invoke(New MethodInvoker(Sub() HeatIndicatorPictureBox.Visible = False))
@@ -451,7 +477,12 @@ Public Class SmartHomeControllerForm
 
     End Sub
 
-
+    'Set the error/alert messages 
+    'invoke added due to cross-threading errors occurring during testing
+    'mode = 0: Neither error is visible
+    'mode = 1: Safety interlock is visible in alert1
+    'mode = 2: System maintenance is visible in alert1
+    'mode = 3: Safety interlock is visible in alert1, system maintenance is visible in alert2
     Sub HandleErrors(mode As Integer)
         'Neither error is active
         If mode = 0 Then
@@ -589,6 +620,9 @@ Public Class SmartHomeControllerForm
 
     End Sub
 
+    'Used to determine if the smart home controller is in heating, cooling, or neither modes
+    'update if read = false
+    'do not update if read = true
     Function ControllerMode(read As Boolean, heatEnabled As Integer) As Integer
         Static controllerStatus As Integer
         'heat = 2
@@ -606,6 +640,7 @@ Public Class SmartHomeControllerForm
     'Event Handlers Below Here
     '================================================================================
 
+    'Try to connect to the Qy@ board, and clear indicators, default to neither heating or cooling
     Private Sub SmartHomeControllerForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If ReadSettings() = False Then
             Me.WindowState = FormWindowState.Minimized
@@ -618,12 +653,14 @@ Public Class SmartHomeControllerForm
         UpdateTempIndicators(0)
     End Sub
 
+    'If ready to receive data, then receive the incoming data bytes
     Private Sub SerialPort_DataReceived(sender As Object, e As IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
         If ReadyToReceiveData(-1) Then
             ReceiveData()
         End If
     End Sub
 
+    'Handles the Connect to Qy@ board button in the top menu strip
     Private Sub ConnectToQyBoardToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectToQyBoardToolStripMenuItem.Click
         ReadyToReceiveData(0)
         Me.WindowState = FormWindowState.Minimized
@@ -631,49 +668,55 @@ Public Class SmartHomeControllerForm
         SerialPortSelectForm.BringToFront()
     End Sub
 
+    'Update the current time and date every 1 second
     Private Sub UpdateCurrentTimeTimer_Tick(sender As Object, e As EventArgs) Handles UpdateCurrentTimeTimer.Tick
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
     End Sub
 
+    'Increase the max temp by 0.5 degrees
     Private Sub IncreaseMaxTempButton_Click(sender As Object, e As EventArgs) Handles IncreaseMaxTempButton.Click
         UpdateMaxTemp(1)
     End Sub
 
+    'Decrease the max temp by 0.5 degrees
     Private Sub DecreaseMaxTempButton_Click(sender As Object, e As EventArgs) Handles DecreaseMaxTempButton.Click
         UpdateMaxTemp(0)
     End Sub
 
+    'Increase the min temp by 0.5 degrees
     Private Sub IncreaseMinTempButton_Click(sender As Object, e As EventArgs) Handles IncreaseMinTempButton.Click
         UpdateMinTemp(1)
     End Sub
 
+    'Decrease the min temp by 0.5 degrees
     Private Sub DecreaseMinTempButton_Click(sender As Object, e As EventArgs) Handles DecreaseMinTempButton.Click
         UpdateMinTemp(0)
     End Sub
 
+    'Saves the port name and temperature settings of the program when the exit button is pressed
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Quit()
     End Sub
 
+    'Check the sensor status' every 2 minutes
     Private Sub CheckSensorTimer_Tick(sender As Object, e As EventArgs) Handles CheckSensorTimer.Tick
         CheckSensor(True)
     End Sub
 
+    'Put the system into heating mode when button is pressed
     Private Sub HeatButton_Click(sender As Object, e As EventArgs) Handles HeatButton.Click
-        'Dim writedata(1) As Byte
-        'writedata(1) = &H20
         ControllerMode(False, 2)
         UpdateTempIndicators(1)
-        'writedata(1) = &H2
-        'SerialPort.Write(writeData, 0, 2)
     End Sub
 
+    'Put system into cooling mode when button is pressed
     Private Sub CoolButton_Click(sender As Object, e As EventArgs) Handles CoolButton.Click
         ControllerMode(False, 1)
         UpdateTempIndicators(2)
     End Sub
 
+    'Read inputs from the Qy@ board every 250 ms if connected
     Private Sub RequestDataTimer_Tick(sender As Object, e As EventArgs) Handles RequestDataTimer.Tick
         If ReadyToReceiveData(-1) Then
             ReadQyInputs()
