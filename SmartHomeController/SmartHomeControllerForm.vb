@@ -54,6 +54,7 @@ Public Class SmartHomeControllerForm
             SerialPort.Open()
             SerialPort.Write(data, 0, 2)
             ReadyToReceiveData(1)
+            CheckSensorTimer.Enabled = True
         Catch ex As Exception
             UpdateMaxTemp(90)
             UpdateMinTemp(50)
@@ -157,7 +158,7 @@ Public Class SmartHomeControllerForm
     End Function
 
     Sub ReceiveData()
-        Dim data(4) As Byte
+        Dim data(105) As Byte
         Dim writeData(1) As Byte
         writeData(0) = &H20
         Static input1Active As Boolean
@@ -170,7 +171,7 @@ Public Class SmartHomeControllerForm
         Dim analoginput2Low As Double
         Dim unitAirTemp As Double
 
-        Sleep(10)
+        Sleep(5)
         Console.WriteLine($"Bytes Receieved: {SerialPort.BytesToRead}")
         SerialPort.Read(data, 0, SerialPort.BytesToRead)
         Console.WriteLine($"Digital Inputs: {Hex(data(0))}")
@@ -186,37 +187,49 @@ Public Class SmartHomeControllerForm
         analoginput2High = data(3) * 4
         analoginput2Low = data(4) \ 64
         unitAirTemp = Math.Round((((analoginput2High + analoginput2Low) / 17.05) + 40), 1)
-        If ControllerMode(True, False) Then
-            If unitAirTemp < 70 Then
+
+        If ControllerMode(True, 0) = 2 Then
+            If unitAirTemp <= 70 Then
+                CheckSensor(False, 0)
+            Else
+                CheckSensor(False, 1)
+            End If
+        ElseIf ControllerMode(True, 0) = 1 Then
+            If unitAirTemp >= 70 Then
                 CheckSensor(False, 0)
             Else
                 CheckSensor(False, 1)
             End If
         Else
-            If unitAirTemp > 70 Then
-                CheckSensor(False, 0)
-            Else
-                CheckSensor(False, 1)
-            End If
+            CheckSensor(False, 1)
         End If
 
-        If Not ControllerMode(True, False) Then 'system in cooling mode
+        'determine if the heat or a/c needs to be turned on
+        If ControllerMode(True, 0) = 1 Then 'system in cooling mode
             If CoolingIndicatorPictureBox.Visible Then
                 If homeTemp <= CDbl(MinTempTextBox.Text) - 2 Then
                     UpdateTempIndicators(0)
+                    writeData(1) = &H0
+                    SerialPort.Write(writeData, 0, 2)
                 End If
             End If
             If homeTemp >= CDbl(MinTempTextBox.Text) + 2 Then
                 UpdateTempIndicators(2)
+                writeData(1) = &H4
+                SerialPort.Write(writeData, 0, 2)
             End If
-        Else 'system in heating mode
+        ElseIf ControllerMode(True, 0) = 2 Then 'system in heating mode
             If HeatIndicatorPictureBox.Visible Then
                 If homeTemp >= CDbl(MaxTempTextBox.Text) + 2 Then
                     UpdateTempIndicators(0)
+                    writeData(1) = &H2
+                    SerialPort.Write(writeData, 0, 2)
                 End If
             End If
             If homeTemp <= CDbl(MaxTempTextBox.Text) - 2 Then
                 UpdateTempIndicators(1)
+                writeData(1) = &H6
+                SerialPort.Write(writeData, 0, 2)
             End If
         End If
 
@@ -256,6 +269,7 @@ Public Class SmartHomeControllerForm
                     input3Active = False
                     Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
                     UpdateTempIndicators(0)
+                    ControllerMode(False, 0)
                 Else
                     If Alert2Label.Visible Then
                         HandleErrors(2)
@@ -278,7 +292,7 @@ Public Class SmartHomeControllerForm
                     Sleep(5000)
                     writeData(1) = &H2
                     SerialPort.Write(writeData, 0, 2)
-                    ControllerMode(False, True)
+                    ControllerMode(False, 2)
                     input1Active = False
                     input2Active = True
                     input3Active = False
@@ -302,6 +316,7 @@ Public Class SmartHomeControllerForm
                     input3Active = True
                     Console.WriteLine($"Command: {Hex(writeData(0))}  | Data Out: {Hex(writeData(1))}")
                     UpdateTempIndicators(0)
+                    ControllerMode(False, 0)
                 Else
                     input1Active = False
                     input2Active = False
@@ -312,17 +327,9 @@ Public Class SmartHomeControllerForm
                 End If
 
             ElseIf GetBitStatus(data(0), 3) = False Then
-                If input3Active Then
-                    If CheckSensorTimer.Enabled = False Then
-                        CheckSensorTimer.Enabled = True
-                    End If
-                Else
-                    CheckSensorTimer.Enabled = False
-                End If
                 CheckSensor(False)
             End If
         End If
-
 
     End Sub
 
@@ -338,14 +345,16 @@ Public Class SmartHomeControllerForm
         Static sensorStatus As Boolean
         Static unitTempStatus As Boolean
 
-        If Not read And unitTempOK = -1 Then
-            sensorStatus = True
-        ElseIf read And unitTempOK = -1 Then
-            If sensorStatus Then
-                sensorStatus = False
-            End If
+        If ControllerMode(True, 0) = 0 Then
+            unitTempStatus = True
         End If
 
+        'update the sensor status
+        If Not read And unitTempOK = -1 Then
+            sensorStatus = True
+        End If
+
+        'update the unit temp status
         If unitTempOK <> -1 Then
             If unitTempOK = 1 Then
                 unitTempStatus = True
@@ -354,6 +363,7 @@ Public Class SmartHomeControllerForm
             End If
         End If
 
+        'determine if the sensors are working and in the proper temperature range
         If read Then
             If Not sensorStatus Or Not unitTempStatus Then
                 If Alert1PictureBox.Visible Then
@@ -381,6 +391,20 @@ Public Class SmartHomeControllerForm
                     CheckSensorTimer.Enabled = True
                 End If
             End If
+            'clear status on a read, because they need to be updated in the next 2 min in order to be functioning properly
+            unitTempStatus = False
+            sensorStatus = False
+        End If
+
+        If unitTempStatus And sensorStatus Then
+            If Alert1Label.Visible Then
+                If Alert1Label.Text = "System Error: Requires System Maintenance" Then
+                    HandleErrors(0)
+                Else
+                    HandleErrors(1)
+                End If
+            End If
+
         End If
     End Sub
 
@@ -429,6 +453,7 @@ Public Class SmartHomeControllerForm
 
 
     Sub HandleErrors(mode As Integer)
+        'Neither error is active
         If mode = 0 Then
 
             If Me.Alert1Label.InvokeRequired Then
@@ -455,6 +480,7 @@ Public Class SmartHomeControllerForm
                 Alert2PictureBox.Visible = False
             End If
 
+            'Only the Safety Interlock warning active
         ElseIf mode = 1 Then
 
             If Me.Alert1Label.InvokeRequired Then
@@ -487,6 +513,7 @@ Public Class SmartHomeControllerForm
                 Alert2PictureBox.Visible = False
             End If
 
+            'Only the system maintenance is active
         ElseIf mode = 2 Then
 
             If Me.Alert1Label.InvokeRequired Then
@@ -519,6 +546,7 @@ Public Class SmartHomeControllerForm
                 Alert2PictureBox.Visible = False
             End If
 
+            'both warnings active
         ElseIf mode = 3 Then
 
             If Me.Alert1Label.InvokeRequired Then
@@ -561,10 +589,11 @@ Public Class SmartHomeControllerForm
 
     End Sub
 
-    Function ControllerMode(read As Boolean, heatEnabled As Boolean) As Boolean
-        Static controllerStatus As Boolean
-        'heat = true
-        'a/c = false
+    Function ControllerMode(read As Boolean, heatEnabled As Integer) As Integer
+        Static controllerStatus As Integer
+        'heat = 2
+        'a/c = 1
+        'neither = 0
 
         If Not read Then
             controllerStatus = heatEnabled
@@ -605,10 +634,6 @@ Public Class SmartHomeControllerForm
     Private Sub UpdateCurrentTimeTimer_Tick(sender As Object, e As EventArgs) Handles UpdateCurrentTimeTimer.Tick
         CurrentTimeLabel.Text = DateTime.Now.ToString("t")
         CurrentDateLabel.Text = DateTime.Now.ToString("D")
-        If ReadyToReceiveData(-1) Then
-            ReadQyInputs()
-        End If
-
     End Sub
 
     Private Sub IncreaseMaxTempButton_Click(sender As Object, e As EventArgs) Handles IncreaseMaxTempButton.Click
@@ -636,12 +661,22 @@ Public Class SmartHomeControllerForm
     End Sub
 
     Private Sub HeatButton_Click(sender As Object, e As EventArgs) Handles HeatButton.Click
-        ControllerMode(False, True)
+        'Dim writedata(1) As Byte
+        'writedata(1) = &H20
+        ControllerMode(False, 2)
         UpdateTempIndicators(1)
+        'writedata(1) = &H2
+        'SerialPort.Write(writeData, 0, 2)
     End Sub
 
     Private Sub CoolButton_Click(sender As Object, e As EventArgs) Handles CoolButton.Click
-        ControllerMode(False, False)
+        ControllerMode(False, 1)
         UpdateTempIndicators(2)
+    End Sub
+
+    Private Sub RequestDataTimer_Tick(sender As Object, e As EventArgs) Handles RequestDataTimer.Tick
+        If ReadyToReceiveData(-1) Then
+            ReadQyInputs()
+        End If
     End Sub
 End Class

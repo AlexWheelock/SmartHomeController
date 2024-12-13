@@ -50,6 +50,7 @@ Partial Class SmartHomeControllerForm
         Me.HeatIndicatorPictureBox = New System.Windows.Forms.PictureBox()
         Me.Alert2PictureBox = New System.Windows.Forms.PictureBox()
         Me.Alert1PictureBox = New System.Windows.Forms.PictureBox()
+        Me.RequestDataTimer = New System.Windows.Forms.Timer(Me.components)
         Me.TopMenuStrip.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.CoolingIndicatorPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -90,7 +91,7 @@ Partial Class SmartHomeControllerForm
         Me.CurrentTempLabel.Font = New System.Drawing.Font("Roboto Slab", 28.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CurrentTempLabel.Location = New System.Drawing.Point(8, 130)
         Me.CurrentTempLabel.Name = "CurrentTempLabel"
-        Me.CurrentTempLabel.Size = New System.Drawing.Size(152, 63)
+        Me.CurrentTempLabel.Size = New System.Drawing.Size(125, 51)
         Me.CurrentTempLabel.TabIndex = 2
         Me.CurrentTempLabel.Text = "Temp"
         '
@@ -101,7 +102,7 @@ Partial Class SmartHomeControllerForm
         Me.MaxTempTextBox.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.MaxTempTextBox.Location = New System.Drawing.Point(68, 193)
         Me.MaxTempTextBox.Name = "MaxTempTextBox"
-        Me.MaxTempTextBox.Size = New System.Drawing.Size(36, 31)
+        Me.MaxTempTextBox.Size = New System.Drawing.Size(36, 25)
         Me.MaxTempTextBox.TabIndex = 3
         Me.MaxTempTextBox.Text = "70"
         '
@@ -112,7 +113,7 @@ Partial Class SmartHomeControllerForm
         Me.MinTempTextBox.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.MinTempTextBox.Location = New System.Drawing.Point(68, 237)
         Me.MinTempTextBox.Name = "MinTempTextBox"
-        Me.MinTempTextBox.Size = New System.Drawing.Size(36, 31)
+        Me.MinTempTextBox.Size = New System.Drawing.Size(36, 25)
         Me.MinTempTextBox.TabIndex = 4
         Me.MinTempTextBox.Text = "50"
         '
@@ -122,7 +123,7 @@ Partial Class SmartHomeControllerForm
         Me.MaxTempLabel.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.MaxTempLabel.Location = New System.Drawing.Point(13, 193)
         Me.MaxTempLabel.Name = "MaxTempLabel"
-        Me.MaxTempLabel.Size = New System.Drawing.Size(68, 31)
+        Me.MaxTempLabel.Size = New System.Drawing.Size(56, 26)
         Me.MaxTempLabel.TabIndex = 5
         Me.MaxTempLabel.Text = "Max:"
         '
@@ -158,7 +159,7 @@ Partial Class SmartHomeControllerForm
         Me.MinTempLabel.Font = New System.Drawing.Font("Roboto Slab", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.MinTempLabel.Location = New System.Drawing.Point(13, 237)
         Me.MinTempLabel.Name = "MinTempLabel"
-        Me.MinTempLabel.Size = New System.Drawing.Size(63, 31)
+        Me.MinTempLabel.Size = New System.Drawing.Size(52, 26)
         Me.MinTempLabel.TabIndex = 8
         Me.MinTempLabel.Text = "Min:"
         '
@@ -168,7 +169,7 @@ Partial Class SmartHomeControllerForm
         Me.CurrentTimeLabel.Font = New System.Drawing.Font("Roboto Slab", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CurrentTimeLabel.Location = New System.Drawing.Point(12, 43)
         Me.CurrentTimeLabel.Name = "CurrentTimeLabel"
-        Me.CurrentTimeLabel.Size = New System.Drawing.Size(92, 40)
+        Me.CurrentTimeLabel.Size = New System.Drawing.Size(72, 32)
         Me.CurrentTimeLabel.TabIndex = 9
         Me.CurrentTimeLabel.Text = "Time"
         '
@@ -182,7 +183,7 @@ Partial Class SmartHomeControllerForm
         Me.TopMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SetupToolStripMenuItem})
         Me.TopMenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.TopMenuStrip.Name = "TopMenuStrip"
-        Me.TopMenuStrip.Size = New System.Drawing.Size(357, 29)
+        Me.TopMenuStrip.Size = New System.Drawing.Size(357, 25)
         Me.TopMenuStrip.TabIndex = 10
         Me.TopMenuStrip.Text = "MenuStrip1"
         '
@@ -190,19 +191,19 @@ Partial Class SmartHomeControllerForm
         '
         Me.SetupToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToQyBoardToolStripMenuItem, Me.ExitToolStripMenuItem})
         Me.SetupToolStripMenuItem.Name = "SetupToolStripMenuItem"
-        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(64, 25)
+        Me.SetupToolStripMenuItem.Size = New System.Drawing.Size(51, 21)
         Me.SetupToolStripMenuItem.Text = "&Setup"
         '
         'ConnectToQyBoardToolStripMenuItem
         '
         Me.ConnectToQyBoardToolStripMenuItem.Name = "ConnectToQyBoardToolStripMenuItem"
-        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(248, 26)
+        Me.ConnectToQyBoardToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.ConnectToQyBoardToolStripMenuItem.Text = "&Connect to Qy@ board"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(248, 26)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.ExitToolStripMenuItem.Text = "E&xit"
         '
         'UpdateCurrentTimeTimer
@@ -216,20 +217,20 @@ Partial Class SmartHomeControllerForm
         Me.CurrentDateLabel.Font = New System.Drawing.Font("Roboto Slab", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CurrentDateLabel.Location = New System.Drawing.Point(14, 74)
         Me.CurrentDateLabel.Name = "CurrentDateLabel"
-        Me.CurrentDateLabel.Size = New System.Drawing.Size(53, 27)
+        Me.CurrentDateLabel.Size = New System.Drawing.Size(44, 22)
         Me.CurrentDateLabel.TabIndex = 11
         Me.CurrentDateLabel.Text = "Date"
         '
         'CheckSensorTimer
         '
-        Me.CheckSensorTimer.Interval = 10000
+        Me.CheckSensorTimer.Interval = 120000
         '
         'Alert1Label
         '
         Me.Alert1Label.AutoSize = True
         Me.Alert1Label.Location = New System.Drawing.Point(41, 284)
         Me.Alert1Label.Name = "Alert1Label"
-        Me.Alert1Label.Size = New System.Drawing.Size(216, 19)
+        Me.Alert1Label.Size = New System.Drawing.Size(177, 15)
         Me.Alert1Label.TabIndex = 13
         Me.Alert1Label.Text = "Alert: Safety Interlock Activated"
         '
@@ -238,7 +239,7 @@ Partial Class SmartHomeControllerForm
         Me.Alert2Label.AutoSize = True
         Me.Alert2Label.Location = New System.Drawing.Point(41, 309)
         Me.Alert2Label.Name = "Alert2Label"
-        Me.Alert2Label.Size = New System.Drawing.Size(216, 19)
+        Me.Alert2Label.Size = New System.Drawing.Size(177, 15)
         Me.Alert2Label.TabIndex = 15
         Me.Alert2Label.Text = "Alert: Safety Interlock Activated"
         '
@@ -314,9 +315,14 @@ Partial Class SmartHomeControllerForm
         Me.Alert1PictureBox.TabIndex = 12
         Me.Alert1PictureBox.TabStop = False
         '
+        'RequestDataTimer
+        '
+        Me.RequestDataTimer.Enabled = True
+        Me.RequestDataTimer.Interval = 250
+        '
         'SmartHomeControllerForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 19.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(231, Byte), Integer), CType(CType(232, Byte), Integer))
         Me.ClientSize = New System.Drawing.Size(357, 340)
@@ -386,4 +392,5 @@ Partial Class SmartHomeControllerForm
     Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents HeatButton As Button
     Friend WithEvents CoolButton As Button
+    Friend WithEvents RequestDataTimer As Timer
 End Class

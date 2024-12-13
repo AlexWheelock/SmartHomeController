@@ -10,22 +10,27 @@ Public Class SerialPortSelectForm
             SerialConnect(portName)
             GetSettings()
             Sleep(5)
-            Dim data(SmartHomeControllerForm.SerialPort.BytesToRead) As Byte
-            SmartHomeControllerForm.SerialPort.Read(data, 0, SmartHomeControllerForm.SerialPort.BytesToRead)
-            'Byte :  58 | HEX: 51 | DEC: 81  | ASCII: Q
-            'Byte :  59 | HEX: 79 | DEC: 121 | ASCII: y
-            'Byte :  60 | HEX: 40 | DEC: 64  | ASCII: @
-            If data.Length >= 64 Then
-                If data(58) = 81 And data(59) = 121 And data(60) = 64 Then
-                    'MsgBox($"Qy@ Board COM Confirmed on port: {SerialPort.PortName}")
-                    SerialComPortsComboBox.Items.Add(SmartHomeControllerForm.SerialPort.PortName)
-                    SerialComPortsComboBox.SelectedItem = SmartHomeControllerForm.SerialPort.PortName
+            Try
+                Dim data(SmartHomeControllerForm.SerialPort.BytesToRead) As Byte
+                SmartHomeControllerForm.SerialPort.Read(data, 0, SmartHomeControllerForm.SerialPort.BytesToRead)
+                'Byte :  58 | HEX: 51 | DEC: 81  | ASCII: Q
+                'Byte :  59 | HEX: 79 | DEC: 121 | ASCII: y
+                'Byte :  60 | HEX: 40 | DEC: 64  | ASCII: @
+                If data.Length >= 64 Then
+                    If data(58) = 81 And data(59) = 121 And data(60) = 64 Then
+                        'MsgBox($"Qy@ Board COM Confirmed on port: {SerialPort.PortName}")
+                        SerialComPortsComboBox.Items.Add(SmartHomeControllerForm.SerialPort.PortName)
+                        SerialComPortsComboBox.SelectedItem = SmartHomeControllerForm.SerialPort.PortName
 
-                    'UpdateStatus()
+                        'UpdateStatus()
+                    End If
+                Else
+                    'MsgBox($"{SerialPort.PortName} is not a Qy@ board.")
                 End If
-            Else
-                'MsgBox($"{SerialPort.PortName} is not a Qy@ board.")
-            End If
+            Catch ex As Exception
+
+            End Try
+
         Next
         'PortComboBox.SelectedIndex = 0
 
@@ -35,7 +40,13 @@ Public Class SerialPortSelectForm
     Function GetSettings() As Byte()
         Dim data(0) As Byte
         data(0) = &B11110000
-        SmartHomeControllerForm.SerialPort.Write(data, 0, 1)
+
+        Try
+            SmartHomeControllerForm.SerialPort.Write(data, 0, 1)
+        Catch ex As Exception
+
+        End Try
+
         Return data
     End Function
 
@@ -59,6 +70,7 @@ Public Class SerialPortSelectForm
 
     Private Sub SerialPortSelectForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SmartHomeControllerForm.WindowState = FormWindowState.Minimized
+        Me.TopMost = True
         GetComPorts()
     End Sub
 
@@ -68,13 +80,16 @@ Public Class SerialPortSelectForm
 
     Private Sub ConnectButton_Click(sender As Object, e As EventArgs) Handles ConnectButton.Click
         Try
-            SerialConnect(SerialComPortsComboBox.Text)
+            SmartHomeControllerForm.SerialPort.PortName = SerialComPortsComboBox.Text
+            SmartHomeControllerForm.SerialPort.BaudRate = 9600
+            SmartHomeControllerForm.SerialPort.Open()
             SmartHomeControllerForm.ReadyToReceiveData(1)
             SmartHomeControllerForm.WindowState = FormWindowState.Normal
+            SmartHomeControllerForm.CheckSensorTimer.Enabled = True
             Me.Close()
         Catch ex As Exception
             If SerialComPortsComboBox.Text = "" Then
-                MsgBox("Please select a COM port and try again.")
+                MsgBox("Please select a valid COM port and try again.")
             Else
                 MsgBox("Attempting to connect to the selected COM port caused an error.")
             End If
